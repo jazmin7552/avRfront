@@ -1,0 +1,128 @@
+<div class="container">
+
+  <!-- ========== HEADER FIJO ========== -->
+  <header class="header">
+    <div class="header-content">
+      <h1>◆ Gestión de Categorías ◆</h1>
+      <button class="btn btn-secondary" (click)="volverAlDashboard()">
+        Volver al Dashboard
+      </button>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO CON SCROLL ========== -->
+  <main class="main-content">
+
+    <div class="content-card">
+
+      <!-- Mensaje de éxito/error -->
+      <div *ngIf="mensaje" class="message" [ngClass]="tipoMensaje">
+        {{ mensaje }}
+      </div>
+
+      <!-- ========== FORMULARIO ========== -->
+      <section class="form-section">
+        <h2>{{ modoEdicion ? 'Editar Categoría' : 'Nueva Categoría' }}</h2>
+
+        <form (ngSubmit)="guardarCategoria()">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nombre">Nombre de la Categoría</label>
+              <input
+                type="text"
+                id="nombre"
+                name="nombre"
+                [(ngModel)]="categoria.nombre"
+                placeholder="Ej: Bebidas, Entradas, Platos Fuertes..."
+                maxlength="50"
+                required
+              >
+            </div>
+
+            <div class="form-group">
+              <label for="descripcion">Descripción (opcional)</label>
+              <input
+                type="text"
+                id="descripcion"
+                name="descripcion"
+                [(ngModel)]="categoria.descripcion"
+                placeholder="Descripción breve de la categoría..."
+                maxlength="200"
+              >
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              {{ modoEdicion ? 'Actualizar Categoría' : 'Guardar Categoría' }}
+            </button>
+            <button
+              *ngIf="modoEdicion"
+              type="button"
+              class="btn btn-secondary"
+              (click)="limpiarFormulario()"
+            >
+              Cancelar
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <!-- ========== TABLA DE CATEGORÍAS ========== -->
+      <section class="table-section">
+        <h2>Listado de Categorías</h2>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+          <div class="spinner"></div>
+          <p>Cargando categorías...</p>
+        </div>
+
+        <!-- Tabla -->
+        <div *ngIf="!loading" class="table-wrapper">
+          <table *ngIf="categorias.length > 0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Descripción</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let cat of categorias">
+                <td>{{ cat.idCategoria }}</td>
+                <td>{{ cat.nombre }}</td>
+                <td>{{ cat.descripcion || '-' }}</td>
+                <td style="text-align: center;">
+                  <div class="actions">
+                    <button
+                      class="btn btn-edit btn-small"
+                      (click)="editarCategoria(cat)"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      class="btn btn-danger btn-small"
+                      (click)="eliminarCategoria(cat.idCategoria!)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Estado vacío -->
+          <div *ngIf="categorias.length === 0" class="empty-state">
+            No hay categorías registradas. ¡Crea la primera!
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+</div>

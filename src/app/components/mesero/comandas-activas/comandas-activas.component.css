@@ -1,0 +1,525 @@
+/* 🎨 BOOTSTRAP ENHANCED - Comandas Activas con Scroll */
+
+/* ========== IMPORTAR BOOTSTRAP ========== */
+@import url('https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css');
+
+/* ========== VARIABLES BOOTSTRAP ========== */
+:root {
+  --bs-primary: #d4a574;
+  --bs-secondary: #b88652;
+  --bs-success: #4caf50;
+  --bs-danger: #e74c3c;
+  --bs-warning: #ffc107;
+  --bs-info: #42a5f5;
+  --bs-light: #e0d5c7;
+  --bs-dark: #0a0705;
+  --bs-body-bg: #1a1410;
+  --bs-body-color: #e0d5c7;
+  --bs-border-color: rgba(212, 165, 116, 0.3);
+  --bs-border-radius: 15px;
+  --bs-font-sans-serif: 'Cormorant Garamond', 'Georgia', serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  height: 100%;
+  overflow: hidden;
+  font-family: var(--bs-font-sans-serif);
+}
+
+/* ========== CONTENEDOR PRINCIPAL CON SCROLL ========== */
+.comandas-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(45, 31, 22, 0.95), rgba(26, 20, 16, 0.95));
+  position: relative;
+}
+
+.comandas-container::before {
+  content: '';
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background:
+    radial-gradient(circle at 20% 30%, rgba(212, 165, 116, 0.08) 0%, transparent 50%),
+    radial-gradient(circle at 80% 70%, rgba(212, 165, 116, 0.05) 0%, transparent 50%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ========== ESQUINAS DECORATIVAS FIJAS ========== */
+.decorative-corner {
+  position: fixed;
+  width: 120px;
+  height: 120px;
+  border: 1.5px solid rgba(212, 165, 116, 0.25);
+  z-index: 5;
+  pointer-events: none;
+}
+
+.corner-tl {
+  top: 15px;
+  left: 15px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-tr {
+  top: 15px;
+  right: 15px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-bl {
+  bottom: 15px;
+  left: 15px;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-br {
+  bottom: 15px;
+  right: 15px;
+  border-left: none;
+  border-top: none;
+}
+
+/* ========== HEADER FIJO (STICKY) ========== */
+.comandas-header {
+  position: sticky;
+  top: 0;
+  background: linear-gradient(135deg, rgba(45, 31, 22, 0.98), rgba(26, 20, 16, 0.98));
+  backdrop-filter: blur(20px);
+  border-bottom: 1px solid var(--bs-border-color);
+  z-index: 100;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+
+.comandas-header h1 {
+  color: #e0b588;
+  font-size: 1.6rem;
+  font-weight: 400;
+  letter-spacing: 2px;
+  margin: 0;
+}
+
+/* ========== BOTONES BOOTSTRAP ========== */
+.btn-back {
+  background: transparent;
+  color: var(--bs-primary);
+  border: 1px solid rgba(212, 165, 116, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-back:hover {
+  background: rgba(212, 165, 116, 0.1);
+  border-color: var(--bs-primary);
+  color: var(--bs-primary);
+  transform: translateX(-3px);
+}
+
+.btn-refresh {
+  background: linear-gradient(135deg, #c89b68, #d4a574);
+  color: #1a1410;
+  border: none;
+  font-weight: 700;
+  transition: all 0.3s ease;
+}
+
+.btn-refresh:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
+  color: #1a1410;
+}
+
+/* ========== LOADING SPINNER BOOTSTRAP ========== */
+.loading {
+  text-align: center;
+  padding: 5rem 2rem;
+  color: #e0b588;
+}
+
+.spinner {
+  border: 3px solid rgba(212, 165, 116, 0.2);
+  border-top: 3px solid var(--bs-primary);
+  border-radius: 50%;
+  width: 50px;
+  height: 50px;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1.5rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* ========== CONTENIDO CON SCROLL VERTICAL ========== */
+.main-content {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+  position: relative;
+  z-index: 10;
+  min-height: 0;
+}
+
+/* 🎨 SCROLL PERSONALIZADO ELEGANTE */
+.main-content::-webkit-scrollbar {
+  width: 14px;
+}
+
+.main-content::-webkit-scrollbar-track {
+  background: rgba(26, 20, 16, 0.8);
+  border-radius: 10px;
+  margin: 5px;
+  box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.main-content::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, #c89b68, #d4a574);
+  border-radius: 10px;
+  border: 2px solid rgba(26, 20, 16, 0.5);
+  box-shadow: 0 0 10px rgba(212, 165, 116, 0.5);
+  transition: all 0.3s ease;
+}
+
+.main-content::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, #d4a574, #e0b588);
+  box-shadow: 0 0 15px rgba(212, 165, 116, 0.8);
+}
+
+/* Firefox */
+.main-content {
+  scrollbar-width: auto;
+  scrollbar-color: #d4a574 rgba(26, 20, 16, 0.8);
+}
+
+/* ========== CARDS BOOTSTRAP PERSONALIZADAS ========== */
+.contador-card {
+  background: linear-gradient(135deg, rgba(45, 31, 22, 0.7), rgba(26, 20, 16, 0.7));
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--bs-border-color);
+  transition: all 0.4s ease;
+}
+
+.contador-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 30px rgba(212, 165, 116, 0.2);
+}
+
+.contador-card.pendiente {
+  border-color: rgba(255, 193, 7, 0.4);
+}
+
+.contador-card.preparacion {
+  border-color: rgba(33, 150, 243, 0.4);
+}
+
+.contador-card.lista {
+  border-color: rgba(76, 175, 80, 0.4);
+}
+
+.contador-icon {
+  font-size: 2.5rem;
+  filter: drop-shadow(0 0 10px rgba(212, 165, 116, 0.3));
+}
+
+.contador-label {
+  color: #b8a896;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin: 0;
+}
+
+.contador-valor {
+  color: #e0b588;
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0.2rem 0 0;
+  text-shadow: 0 0 15px rgba(212, 165, 116, 0.3);
+}
+
+/* ========== BOTONES DE FILTRO BOOTSTRAP ========== */
+.btn-filtro {
+  padding: 0.8rem 1.8rem;
+  background: rgba(26, 20, 16, 0.6);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 25px;
+  color: #b8a896;
+  font-weight: 600;
+  font-size: 0.95rem;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-filtro:hover {
+  background: rgba(212, 165, 116, 0.1);
+  border-color: var(--bs-primary);
+  color: #e0b588;
+}
+
+.btn-filtro.active {
+  background: linear-gradient(135deg, #c89b68, #d4a574);
+  border-color: var(--bs-primary);
+  color: #1a1410;
+  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.3);
+}
+
+/* ========== CARDS DE COMANDAS ========== */
+.comanda-card {
+  background: linear-gradient(135deg, rgba(45, 31, 22, 0.8), rgba(26, 20, 16, 0.8));
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--bs-border-color);
+  border-radius: 20px;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.comanda-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(212, 165, 116, 0.1), transparent);
+  transition: left 0.6s;
+}
+
+.comanda-card:hover::before {
+  left: 100%;
+}
+
+.comanda-card:hover {
+  transform: translateY(-8px) scale(1.02);
+  border-color: var(--bs-primary);
+  box-shadow: 0 15px 40px rgba(212, 165, 116, 0.3);
+}
+
+/* ========== HEADER DE COMANDA ========== */
+.comanda-header {
+  border-bottom: 1px solid rgba(212, 165, 116, 0.2);
+}
+
+.numero-label {
+  color: #b8a896;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.numero-valor {
+  color: #e0b588;
+  font-size: 1.4rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+/* ========== BADGES DE ESTADO BOOTSTRAP ========== */
+.comanda-estado {
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.estado-icon {
+  font-size: 1.2rem;
+}
+
+.estado-pendiente {
+  background: rgba(255, 193, 7, 0.2);
+  color: var(--bs-warning);
+  border: 1px solid rgba(255, 193, 7, 0.4);
+}
+
+.estado-preparacion {
+  background: rgba(33, 150, 243, 0.2);
+  color: var(--bs-info);
+  border: 1px solid rgba(33, 150, 243, 0.4);
+}
+
+.estado-lista {
+  background: rgba(76, 175, 80, 0.2);
+  color: #81c784;
+  border: 1px solid rgba(76, 175, 80, 0.4);
+}
+
+/* ========== INFO ITEMS ========== */
+.info-item {
+  color: #b8a896;
+  font-size: 0.95rem;
+}
+
+.info-icon {
+  font-size: 1.2rem;
+}
+
+/* ========== PRODUCTOS PREVIEW ========== */
+.comanda-productos {
+  background: rgba(26, 20, 16, 0.5);
+  border: 1px solid rgba(212, 165, 116, 0.2);
+  border-radius: 12px;
+}
+
+.productos-header {
+  color: var(--bs-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+}
+
+.producto-cantidad {
+  color: #e0b588;
+  font-weight: 700;
+  min-width: 30px;
+}
+
+.producto-nombre {
+  color: #b8a896;
+}
+
+.productos-mas {
+  color: var(--bs-primary);
+  font-size: 0.85rem;
+  font-style: italic;
+}
+
+/* ========== FOOTER DE COMANDA ========== */
+.comanda-footer {
+  border-top: 1px solid rgba(212, 165, 116, 0.2);
+}
+
+.total-label {
+  color: #b8a896;
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.total-valor {
+  color: #e0b588;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-shadow: 0 0 15px rgba(212, 165, 116, 0.3);
+}
+
+.btn-ver-detalle {
+  background: linear-gradient(135deg, #c89b68, #d4a574);
+  color: #1a1410;
+  border: none;
+  font-weight: 700;
+  font-size: 0.9rem;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-ver-detalle:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(212, 165, 116, 0.4);
+  color: #1a1410;
+}
+
+/* ========== EMPTY STATE ========== */
+.empty-state {
+  grid-column: 1 / -1;
+  text-align: center;
+}
+
+.empty-icon {
+  font-size: 5rem;
+  opacity: 0.4;
+  filter: drop-shadow(0 0 20px rgba(212, 165, 116, 0.2));
+}
+
+.empty-text {
+  color: #b8a896;
+  font-size: 1.2rem;
+  letter-spacing: 0.5px;
+}
+
+.btn-empty-action {
+  background: transparent;
+  color: var(--bs-primary);
+  border: 1px solid rgba(212, 165, 116, 0.4);
+  transition: all 0.3s ease;
+}
+
+.btn-empty-action:hover {
+  background: rgba(212, 165, 116, 0.1);
+  border-color: var(--bs-primary);
+  transform: scale(1.05);
+}
+
+/* ========== RESPONSIVE BOOTSTRAP ========== */
+@media (max-width: 1199.98px) {
+  .decorative-corner {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+@media (max-width: 991.98px) {
+  .decorative-corner {
+    width: 80px;
+    height: 80px;
+  }
+}
+
+@media (max-width: 767.98px) {
+  .decorative-corner {
+    width: 60px;
+    height: 60px;
+  }
+
+  .corner-tl,
+  .corner-tr {
+    top: 10px;
+  }
+
+  .corner-bl,
+  .corner-br {
+    bottom: 10px;
+  }
+
+  .corner-tl,
+  .corner-bl {
+    left: 10px;
+  }
+
+  .corner-tr,
+  .corner-br {
+    right: 10px;
+  }
+
+  .comandas-header h1 {
+    font-size: 1.2rem;
+  }
+}
+
+@media (max-width: 575.98px) {
+  .main-content::-webkit-scrollbar {
+    width: 10px;
+  }
+}

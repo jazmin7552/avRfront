@@ -1,0 +1,178 @@
+<div class="container">
+
+  <!-- ========== HEADER FIJO ========== -->
+  <header class="header">
+    <div class="header-content">
+      <h1>◆ Gestión de Roles ◆</h1>
+      <div class="btn-group">
+        <button class="btn btn-primary" (click)="abrirModalCrear()">
+          + Nuevo Rol
+        </button>
+        <button class="btn btn-secondary" (click)="volverAlDashboard()">
+          Volver al Dashboard
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO CON SCROLL ========== -->
+  <main class="main-content">
+
+    <div class="content-card">
+
+      <!-- Estadísticas -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Roles</h3>
+          <div class="number">{{ roles.length }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Usuarios Asignados</h3>
+          <div class="number">{{ totalUsuarios }}</div>
+        </div>
+      </div>
+
+      <!-- Mensaje -->
+      <div *ngIf="mensaje" class="message" [ngClass]="tipoMensaje">
+        {{ mensaje }}
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-section">
+        <h2>Listado de Roles</h2>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+          <div class="spinner"></div>
+          <p>Cargando roles...</p>
+        </div>
+
+        <!-- Tabla -->
+        <div *ngIf="!loading" class="table-wrapper">
+          <table *ngIf="roles.length > 0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre del Rol</th>
+                <th>Usuarios Asignados</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let rol of roles">
+                <td>{{ rol.idRol }}</td>
+                <td>
+                  <span class="badge">{{ rol.nombre }}</span>
+                </td>
+                <td>{{ rol.cantidadUsuarios || 0 }}</td>
+                <td style="text-align: center;">
+                  <div class="actions">
+                    <button
+                      class="btn btn-small btn-edit"
+                      (click)="abrirModalEditar(rol)"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      class="btn btn-small btn-danger"
+                      (click)="abrirModalEliminar(rol)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Estado vacío -->
+          <div *ngIf="roles.length === 0" class="empty-state">
+            No hay roles para mostrar.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- ========== MODAL CREAR ROL ========== -->
+<div class="modal" [class.show]="mostrarModalCrear">
+  <div class="modal-content">
+    <h3>Nuevo Rol</h3>
+    <form (ngSubmit)="crearRol()">
+      <div class="form-group">
+        <label for="createNombre">Nombre del Rol *</label>
+        <input
+          type="text"
+          id="createNombre"
+          name="nombre"
+          [(ngModel)]="nuevoRol.nombre"
+          placeholder="Ej: ADMIN, MESERO, COCINERO"
+          required
+        >
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalCrear()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          Crear
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL EDITAR ROL ========== -->
+<div class="modal" [class.show]="mostrarModalEditar">
+  <div class="modal-content" *ngIf="rolEditando">
+    <h3>Editar Rol</h3>
+    <p style="color: #b8a896; margin-bottom: 20px; text-align: center;">
+      ID: <span>{{ rolEditando.idRol }}</span>
+    </p>
+    <form (ngSubmit)="actualizarRol()">
+      <div class="form-group">
+        <label for="editNombre">Nombre del Rol *</label>
+        <input
+          type="text"
+          id="editNombre"
+          name="nombre"
+          [(ngModel)]="rolEditando.nombre"
+          required
+        >
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalEditar()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          Actualizar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL ELIMINAR ROL ========== -->
+<div class="modal" [class.show]="mostrarModalEliminar">
+  <div class="modal-content" *ngIf="rolEliminar">
+    <h3>Confirmar Eliminación</h3>
+    <p style="color: #b8a896; margin-bottom: 30px; text-align: center;">
+      ¿Estás seguro de que deseas eliminar el rol <strong style="color: #e0b588;">{{ rolEliminar.nombre }}</strong>?
+    </p>
+    <p style="font-size: 13px; color: #e57373; text-align: center;">
+      Esta acción no se puede deshacer.
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="cerrarModalEliminar()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmarEliminar()" [disabled]="loading">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

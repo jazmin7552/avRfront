@@ -1,0 +1,168 @@
+<div class="dashboard-container">
+  <!-- Esquinas decorativas -->
+  <div class="decorative-corner corner-tl"></div>
+  <div class="decorative-corner corner-tr"></div>
+  <div class="decorative-corner corner-bl"></div>
+  <div class="decorative-corner corner-br"></div>
+
+  <!-- Header fijo -->
+  <header class="dashboard-header">
+    <div class="header-content">
+      <h1>👨‍🍳 Cocina - Buen Sazón</h1>
+      <div class="user-info">
+        <span class="user-name">{{ cocineroNombre }}</span>
+        <button class="btn-logout" (click)="cerrarSesion()">Salir</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando datos de cocina...</p>
+  </div>
+
+  <!-- Contenido principal con scroll -->
+  <div class="main-content" *ngIf="!loading">
+
+    <!-- Estadísticas -->
+    <section class="stats-section">
+      <h2>Estadísticas de Cocina</h2>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">⏳</div>
+          <div class="stat-info">
+            <p class="stat-label">Comandas Pendientes</p>
+            <p class="stat-value">{{ estadisticas.comandasPendientes }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">👨‍🍳</div>
+          <div class="stat-info">
+            <p class="stat-label">En Preparación</p>
+            <p class="stat-value">{{ estadisticas.comandasEnPreparacion }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">✅</div>
+          <div class="stat-info">
+            <p class="stat-label">Completadas Hoy</p>
+            <p class="stat-value">{{ estadisticas.comandasCompletadas }}</p>
+          </div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-icon">🔥</div>
+          <div class="stat-info">
+            <p class="stat-label">Productos Preparando</p>
+            <p class="stat-value">{{ estadisticas.totalPreparando }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Acciones rápidas -->
+    <section class="quick-actions">
+      <button class="btn-action btn-primary" (click)="verComandasPendientes()">
+        ⏳ Ver Pendientes
+      </button>
+      <button class="btn-action btn-secondary" (click)="verComandasEnPreparacion()">
+        👨‍🍳 En Preparación
+      </button>
+      <button class="btn-action btn-accent" (click)="refrescar()">
+        🔄 Actualizar
+      </button>
+    </section>
+
+    <!-- Comandas pendientes recientes -->
+    <section class="comandas-section" *ngIf="comandasPendientes.length > 0">
+      <h2>Comandas Pendientes Recientes</h2>
+      <div class="comandas-grid">
+        <div
+          *ngFor="let comanda of comandasPendientes"
+          class="comanda-card"
+          (click)="verDetalleComanda(comanda.comandaId)">
+
+          <div class="comanda-header">
+            <span class="comanda-numero">Comanda #{{ comanda.comandaId }}</span>
+            <span class="comanda-estado estado-pendiente">
+              <span class="estado-icon">{{ getEstadoIcono(comanda.estadoNombre) }}</span>
+              <span class="estado-texto">{{ getEstadoTexto(comanda.estadoNombre) }}</span>
+            </span>
+          </div>
+
+          <div class="comanda-body">
+            <p class="comanda-mesa">🪑 Mesa {{ comanda.mesaId }}</p>
+            <p class="comanda-hora">{{ comanda.fecha | date:'HH:mm' }}</p>
+            <p class="comanda-productos" *ngIf="comanda.detalles">
+              📦 {{ comanda.detalles.length }} producto(s)
+            </p>
+          </div>
+
+          <div class="comanda-footer">
+            <div class="comanda-total">
+              <span class="total-label">Total:</span>
+              <span class="total-valor">${{ calcularTotalComanda(comanda) | number:'1.0-0' }}</span>
+            </div>
+            <button class="btn-iniciar" (click)="iniciarPreparacion(comanda); $event.stopPropagation()">
+              👨‍🍳 Iniciar
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Comandas en preparación -->
+    <section class="comandas-section" *ngIf="comandasEnPreparacion.length > 0">
+      <h2>Comandas en Preparación</h2>
+      <div class="comandas-grid">
+        <div
+          *ngFor="let comanda of comandasEnPreparacion"
+          class="comanda-card"
+          (click)="verDetalleComanda(comanda.comandaId)">
+
+          <div class="comanda-header">
+            <span class="comanda-numero">Comanda #{{ comanda.comandaId }}</span>
+            <span class="comanda-estado estado-preparacion">
+              <span class="estado-icon">{{ getEstadoIcono(comanda.estadoNombre) }}</span>
+              <span class="estado-texto">{{ getEstadoTexto(comanda.estadoNombre) }}</span>
+            </span>
+          </div>
+
+          <div class="comanda-body">
+            <p class="comanda-mesa">🪑 Mesa {{ comanda.mesaId }}</p>
+            <p class="comanda-hora">{{ comanda.fecha | date:'HH:mm' }}</p>
+            <p class="comanda-productos" *ngIf="comanda.detalles">
+              📦 {{ comanda.detalles.length }} producto(s)
+            </p>
+          </div>
+
+          <div class="comanda-footer">
+            <div class="comanda-total">
+              <span class="total-label">Total:</span>
+              <span class="total-valor">${{ calcularTotalComanda(comanda) | number:'1.0-0' }}</span>
+            </div>
+            <button class="btn-lista" (click)="marcarComoLista(comanda); $event.stopPropagation()">
+              ✅ Listo
+            </button>
+          </div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- Mensajes vacíos -->
+    <section class="empty-sections" *ngIf="comandasPendientes.length === 0 && comandasEnPreparacion.length === 0">
+      <div class="empty-state">
+        <div class="empty-icon">🍳</div>
+        <h3>¡Todo en orden!</h3>
+        <p>No hay comandas pendientes ni en preparación en este momento.</p>
+        <button class="btn-empty-action" (click)="refrescar()">Actualizar Estado</button>
+      </div>
+    </section>
+
+  </div>
+</div>

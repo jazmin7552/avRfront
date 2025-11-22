@@ -1,0 +1,544 @@
+/* 🎨 BOOTSTRAP + SCROLL PERSONALIZADO - Buen Sazón (Login) */
+
+/* ========== RESET Y VARIABLES ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+:host {
+  display: block;
+  height: 100%;
+  --primary: #d4a574;
+  --secondary: #b88652;
+  --accent: #e0b588;
+  --text: #e0d5c7;
+  --text-light: #c9b8a6;
+  --bg-dark: #0a0705;
+  --bg-medium: #1a1410;
+  --bg-card: rgba(26, 20, 16, 0.9);
+}
+
+/* ========== CONTENEDOR PRINCIPAL ========== */
+.login-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  background: linear-gradient(135deg, #1a1410 0%, #2d1f16 50%, #1a1410 100%);
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Efecto de fondo animado */
+.login-wrapper::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(212, 165, 116, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: moveBackground 20s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes moveBackground {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* ========== ESQUINAS DECORATIVAS ========== */
+.decorative-corner {
+  position: fixed;
+  width: 150px;
+  height: 150px;
+  border: 2px solid rgba(212, 165, 116, 0.2);
+  z-index: 1;
+}
+
+.corner-tl {
+  top: 20px;
+  left: 20px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-tr {
+  top: 20px;
+  right: 20px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-bl {
+  bottom: 20px;
+  left: 20px;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-br {
+  bottom: 20px;
+  right: 20px;
+  border-left: none;
+  border-top: none;
+}
+
+/* ========== CONTENEDOR DE LOGIN CON SCROLL ========== */
+.login-container {
+  background: linear-gradient(135deg, rgba(45, 31, 22, 0.75), rgba(26, 20, 16, 0.75));
+  padding: 50px 45px;
+  border-radius: 20px;
+  box-shadow:
+    0 0 80px rgba(212, 165, 116, 0.25),
+    inset 0 0 60px rgba(0, 0, 0, 0.2);
+  width: 450px;
+  max-width: 90%;
+  max-height: 90vh;
+  border: 1px solid rgba(212, 165, 116, 0.4);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow-y: auto;
+  overflow-x: hidden;
+  animation: fadeIn 0.6s ease;
+  z-index: 10;
+}
+
+/* 🎨 SCROLL PERSONALIZADO ELEGANTE */
+.login-container::-webkit-scrollbar {
+  width: 10px;
+}
+
+.login-container::-webkit-scrollbar-track {
+  background: rgba(26, 20, 16, 0.4);
+  border-radius: 10px;
+  margin: 5px;
+}
+
+.login-container::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+  border-radius: 10px;
+  border: 2px solid rgba(26, 20, 16, 0.4);
+  transition: all 0.3s ease;
+}
+
+.login-container::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--accent), var(--primary));
+  border-color: rgba(26, 20, 16, 0.2);
+  box-shadow: 0 0 10px rgba(212, 165, 116, 0.5);
+}
+
+/* Firefox */
+.login-container {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) rgba(26, 20, 16, 0.3);
+}
+
+.login-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg,
+      transparent,
+      rgba(212, 165, 116, 0.1),
+      transparent,
+      rgba(212, 165, 116, 0.1));
+  background-size: 200% 200%;
+  animation: borderGlow 3s ease infinite;
+  z-index: -1;
+  border-radius: 20px;
+}
+
+@keyframes borderGlow {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* ========== LOGO ========== */
+.logo {
+  text-align: center;
+  margin-bottom: 35px;
+  position: relative;
+}
+
+.logo::before,
+.logo::after {
+  content: '◆';
+  color: #d4a574;
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.5;
+}
+
+.logo::before {
+  left: 20px;
+}
+
+.logo::after {
+  right: 20px;
+}
+
+.logo h1 {
+  color: #e0b588;
+  font-size: 48px;
+  margin-bottom: 5px;
+  letter-spacing: 5px;
+  font-weight: 400;
+  text-shadow: 0 0 40px rgba(212, 165, 116, 0.6);
+  position: relative;
+}
+
+.logo p {
+  color: #b8a896;
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* ========== DIVISOR DECORATIVO ========== */
+.decorative-divider {
+  display: flex;
+  align-items: center;
+  margin: 30px 0;
+}
+
+.decorative-divider::before,
+.decorative-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #d4a574, transparent);
+}
+
+.decorative-divider span {
+  padding: 0 15px;
+  color: #d4a574;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+/* ========== MENSAJES ========== */
+.message {
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  animation: slideDown 0.4s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message.success {
+  background: rgba(76, 175, 80, 0.15);
+  color: #81c784;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.message.error {
+  background: rgba(244, 67, 54, 0.15);
+  color: #e57373;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+/* ========== FORMULARIO ========== */
+.form-group {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+label {
+  display: block;
+  color: #d4a574;
+  font-size: 13px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+input {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid rgba(212, 165, 116, 0.3);
+  border-radius: 10px;
+  font-size: 15px;
+  background: rgba(26, 20, 16, 0.5);
+  transition: all 0.4s ease;
+  color: #e0d5c7;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+}
+
+input::placeholder {
+  color: rgba(184, 168, 150, 0.5);
+}
+
+input:focus {
+  outline: none;
+  border-color: #d4a574;
+  background: rgba(26, 20, 16, 0.8);
+  box-shadow: 0 0 20px rgba(212, 165, 116, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ========== FORGOT PASSWORD ========== */
+.forgot-password {
+  text-align: right;
+  margin-top: 10px;
+}
+
+.forgot-password a {
+  color: #b8a896;
+  font-size: 12px;
+  text-decoration: none;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+.forgot-password a:hover {
+  color: #d4a574;
+  text-shadow: 0 0 10px rgba(212, 165, 116, 0.3);
+}
+
+/* ========== BOTONES ========== */
+.btn-container {
+  display: flex;
+  gap: 15px;
+  margin-top: 35px;
+}
+
+button {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+button:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-login {
+  background: linear-gradient(135deg, #c89b68, #d4a574, #e0b588);
+  color: #1a1410;
+  box-shadow: 0 8px 25px rgba(212, 165, 116, 0.3);
+  position: relative;
+}
+
+.btn-login:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(212, 165, 116, 0.5);
+}
+
+.btn-login:active {
+  transform: translateY(-1px);
+}
+
+.btn-register {
+  background: transparent;
+  color: #d4a574;
+  border: 2px solid #d4a574;
+}
+
+.btn-register:hover {
+  background: rgba(212, 165, 116, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(212, 165, 116, 0.2);
+}
+
+/* ========== DIVISOR "O" ========== */
+.divider-or {
+  display: flex;
+  align-items: center;
+  margin: 25px 0;
+  opacity: 0.5;
+}
+
+.divider-or::before,
+.divider-or::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: rgba(212, 165, 116, 0.3);
+}
+
+.divider-or span {
+  padding: 0 15px;
+  color: #b8a896;
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+/* ========== RESPONSIVE ========== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .login-container {
+    width: 90%;
+    padding: 40px 30px;
+  }
+
+  .logo h1 {
+    font-size: 40px;
+  }
+
+  .decorative-corner {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Móvil */
+@media (max-width: 480px) {
+  .login-container {
+    padding: 30px 25px;
+  }
+
+  .logo h1 {
+    font-size: 36px;
+    letter-spacing: 3px;
+  }
+
+  .logo p {
+    font-size: 12px;
+  }
+
+  .logo::before {
+    left: 10px;
+  }
+
+  .logo::after {
+    right: 10px;
+  }
+
+  .decorative-corner {
+    width: 80px;
+    height: 80px;
+  }
+
+  .corner-tl,
+  .corner-tr {
+    top: 10px;
+  }
+
+  .corner-bl,
+  .corner-br {
+    bottom: 10px;
+  }
+
+  .corner-tl,
+  .corner-bl {
+    left: 10px;
+  }
+
+  .corner-tr,
+  .corner-br {
+    right: 10px;
+  }
+
+  input {
+    font-size: 14px;
+    padding: 12px 15px;
+  }
+
+  button {
+    padding: 14px;
+    font-size: 13px;
+  }
+
+  .btn-container {
+    flex-direction: column;
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .logo h1 {
+    font-size: 32px;
+  }
+
+  .login-container {
+    padding: 25px 20px;
+  }
+}

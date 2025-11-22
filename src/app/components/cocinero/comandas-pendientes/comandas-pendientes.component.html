@@ -1,0 +1,160 @@
+<div class="comandas-container">
+  <!-- Esquinas decorativas -->
+  <div class="decorative-corner corner-tl"></div>
+  <div class="decorative-corner corner-tr"></div>
+  <div class="decorative-corner corner-bl"></div>
+  <div class="decorative-corner corner-br"></div>
+
+  <!-- Header -->
+  <header class="comandas-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="btn-back" (click)="volver()">← Volver</button>
+        <h1>👨‍🍳 Comandas de Cocina</h1>
+      </div>
+      <button class="btn-refresh" (click)="refrescar()">
+        🔄 Actualizar
+      </button>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando comandas de cocina...</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="main-content" *ngIf="!loading">
+
+    <!-- Contadores -->
+    <section class="contadores-section">
+      <div class="contador-card">
+        <div class="contador-icon">📊</div>
+        <div class="contador-info">
+          <p class="contador-label">Total</p>
+          <p class="contador-valor">{{ contadores.total }}</p>
+        </div>
+      </div>
+
+      <div class="contador-card pendiente">
+        <div class="contador-icon">⏳</div>
+        <div class="contador-info">
+          <p class="contador-label">Pendientes</p>
+          <p class="contador-valor">{{ contadores.pendientes }}</p>
+        </div>
+      </div>
+
+      <div class="contador-card preparacion">
+        <div class="contador-icon">👨‍🍳</div>
+        <div class="contador-info">
+          <p class="contador-label">En Preparación</p>
+          <p class="contador-valor">{{ contadores.preparacion }}</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Filtros -->
+    <section class="filtros-section">
+      <button
+        class="btn-filtro"
+        [class.active]="filtroEstado === 'TODAS'"
+        (click)="filtrarPorEstado('TODAS')">
+        Todas
+      </button>
+      <button
+        class="btn-filtro"
+        [class.active]="filtroEstado === 'PENDIENTE'"
+        (click)="filtrarPorEstado('PENDIENTE')">
+        ⏳ Pendientes
+      </button>
+      <button
+        class="btn-filtro"
+        [class.active]="filtroEstado === 'EN_PREPARACION'"
+        (click)="filtrarPorEstado('EN_PREPARACION')">
+        👨‍🍳 En Preparación
+      </button>
+    </section>
+
+    <!-- Lista de comandas -->
+    <section class="comandas-list">
+      <div
+        *ngFor="let comanda of comandasFiltradas"
+        class="comanda-card"
+        (click)="verDetalleComanda(comanda)">
+
+        <div class="comanda-header">
+          <div class="comanda-numero">
+            <span class="numero-label">Comanda</span>
+            <span class="numero-valor">#{{ comanda.comandaId }}</span>
+          </div>
+          <div class="comanda-estado" [ngClass]="getEstadoClase(comanda.estadoNombre)">
+            <span class="estado-icon">{{ getEstadoIcono(comanda.estadoNombre) }}</span>
+            <span class="estado-texto">{{ getEstadoTexto(comanda.estadoNombre) }}</span>
+          </div>
+        </div>
+
+        <div class="comanda-body">
+          <div class="comanda-info-row">
+            <div class="info-item">
+              <span class="info-icon">🪑</span>
+              <span class="info-text">Mesa {{ comanda.mesaId }}</span>
+            </div>
+            <div class="info-item">
+              <span class="info-icon">🕐</span>
+              <span class="info-text">{{ comanda.fecha | date:'HH:mm' }}</span>
+            </div>
+          </div>
+
+          <!-- Detalles de productos -->
+          <div class="comanda-productos" *ngIf="comanda.detalles && comanda.detalles.length > 0">
+            <div class="productos-header">
+              <span>📦 {{ comanda.detalles.length }} producto(s)</span>
+            </div>
+            <div class="productos-preview">
+              <div *ngFor="let detalle of comanda.detalles.slice(0, 3)" class="producto-preview-item">
+                <span class="producto-cantidad">{{ detalle.cantidad }}x</span>
+                <span class="producto-nombre">{{ detalle.nombreProducto || 'Producto' }}</span>
+              </div>
+              <span *ngIf="comanda.detalles.length > 3" class="productos-mas">
+                +{{ comanda.detalles.length - 3 }} más...
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="comanda-footer">
+          <div class="comanda-total">
+            <span class="total-label">Total:</span>
+            <span class="total-valor">${{ calcularTotalComanda(comanda) | number:'1.0-0' }}</span>
+          </div>
+
+          <!-- Botones de acción según estado -->
+          <div class="comanda-actions">
+            <button
+              *ngIf="comanda.estadoNombre === 'PENDIENTE'"
+              class="btn-iniciar"
+              (click)="iniciarPreparacion(comanda); $event.stopPropagation()">
+              👨‍🍳 Iniciar
+            </button>
+            <button
+              *ngIf="comanda.estadoNombre === 'EN_PREPARACION'"
+              class="btn-lista"
+              (click)="marcarComoLista(comanda); $event.stopPropagation()">
+              ✅ Listo
+            </button>
+            <button class="btn-ver-detalle">Ver Detalle →</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje si no hay comandas -->
+      <div class="empty-state" *ngIf="comandasFiltradas.length === 0">
+        <div class="empty-icon">🍳</div>
+        <p class="empty-text">No hay comandas {{ filtroEstado === 'TODAS' ? 'en cocina' : 'en este estado' }}</p>
+        <button class="btn-empty-action" (click)="volver()">Volver al Dashboard</button>
+      </div>
+    </section>
+
+  </div>
+</div>

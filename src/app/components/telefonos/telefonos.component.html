@@ -1,0 +1,183 @@
+<div class="container">
+
+  <!-- ========== HEADER FIJO ========== -->
+  <header class="header">
+    <div class="header-content">
+      <h1>◆ Gestión de Teléfonos ◆</h1>
+      <button class="btn btn-secondary" (click)="volverAlDashboard()">
+        Volver al Dashboard
+      </button>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO CON SCROLL ========== -->
+  <main class="main-content">
+
+    <div class="content-card">
+
+      <!-- Mensaje -->
+      <div *ngIf="mensaje" class="message" [ngClass]="tipoMensaje">
+        {{ mensaje }}
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters-section">
+        <div class="filters-grid">
+          <div class="form-group">
+            <label for="searchUsuario">Buscar por Usuario</label>
+            <input
+              type="text"
+              id="searchUsuario"
+              [(ngModel)]="busquedaUsuario"
+              placeholder="Nombre del usuario"
+            >
+          </div>
+          <div class="form-group">
+            <label style="opacity: 0;">Buscar</label>
+            <button class="btn btn-primary" (click)="buscarPorUsuario()">
+              Buscar
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Formulario -->
+      <div class="form-section">
+        <h2>{{ modoEdicion ? 'Editar Teléfono' : 'Nuevo Teléfono' }}</h2>
+        <form (ngSubmit)="guardarTelefono()">
+          <div class="form-grid">
+            <!-- Campo de Teléfono -->
+            <div class="form-group">
+              <label for="numero">Número de Teléfono *</label>
+              <input
+                type="tel"
+                id="numero"
+                name="numero"
+                [(ngModel)]="telefono.numero"
+                placeholder="+573001234567"
+                maxlength="15"
+                required
+              >
+              <small style="color: #b8a896; font-size: 11px; margin-top: 5px; display: block;">
+                Formato: +57 seguido del número (7-15 caracteres)
+              </small>
+            </div>
+
+            <!-- Selector de Usuario -->
+            <div class="form-group" *ngIf="!modoEdicion">
+              <label for="usuario">Asignar a Cliente</label>
+              <select
+                id="usuario"
+                name="usuario"
+                [(ngModel)]="telefono.usuarioId"
+              >
+                <option value="">Sin asignar (opcional)</option>
+                <option *ngFor="let usuario of usuarios" [value]="usuario.idUsuario">
+                  {{ usuario.nombre }} - {{ usuario.email }}
+                </option>
+              </select>
+              <small style="color: #b8a896; font-size: 11px; margin-top: 5px; display: block;">
+                Puedes asignar el teléfono a un cliente específico
+              </small>
+            </div>
+          </div>
+
+          <div class="btn-group">
+            <button
+              *ngIf="modoEdicion"
+              type="button"
+              class="btn btn-secondary"
+              (click)="cancelarEdicion()"
+            >
+              Cancelar
+            </button>
+            <button type="submit" class="btn btn-primary" [disabled]="loading">
+              {{ modoEdicion ? 'Actualizar Teléfono' : 'Guardar Teléfono' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-section">
+        <h2>Listado de Teléfonos</h2>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+          <div class="spinner"></div>
+          <p>Cargando teléfonos...</p>
+        </div>
+
+        <!-- Tabla -->
+        <div *ngIf="!loading" class="table-wrapper">
+          <table *ngIf="telefonos.length > 0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Número</th>
+                <th>Usuarios Asociados</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let tel of telefonos">
+                <td>{{ tel.idTelefono }}</td>
+                <td>{{ tel.numero }}</td>
+                <td>
+                  <span [ngClass]="tel.usuarios && tel.usuarios.length > 0 ? 'badge badge-success' : 'badge badge-default'">
+                    {{ tel.usuarioNombre }}
+                  </span>
+                </td>
+                <td style="text-align: center;">
+                  <div class="actions">
+                    <button
+                      class="btn btn-small btn-edit"
+                      (click)="editarTelefono(tel)"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      class="btn btn-small btn-danger"
+                      (click)="abrirModalEliminar(tel)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Estado vacío -->
+          <div *ngIf="telefonos.length === 0" class="empty-state">
+            No hay teléfonos registrados.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- ========== MODAL ELIMINAR TELÉFONO ========== -->
+<div class="modal" [class.show]="mostrarModalEliminar">
+  <div class="modal-content" *ngIf="telefonoEliminar">
+    <h3>Confirmar Eliminación</h3>
+    <p style="color: #b8a896; margin-bottom: 30px; text-align: center;">
+      ¿Estás seguro de que deseas eliminar el teléfono <strong style="color: #e0b588;">{{ telefonoEliminar.numero }}</strong>?
+    </p>
+    <p style="font-size: 13px; color: #e57373; text-align: center;">
+      Esta acción no se puede deshacer y desvinculará el teléfono de todos los usuarios asociados.
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="cerrarModalEliminar()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmarEliminar()" [disabled]="loading">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

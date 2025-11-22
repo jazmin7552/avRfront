@@ -1,0 +1,98 @@
+<div class="dashboard-container">
+
+  <!-- Partículas flotantes -->
+  <div class="particles">
+    <div
+      class="particle"
+      *ngFor="let p of particles"
+      [style.left.%]="p.left"
+      [style.top.%]="p.top"
+      [style.animation-delay]="p.delay + 's'"
+      [style.animation-duration]="p.duration + 's'">
+    </div>
+  </div>
+
+  <!-- ========== HEADER FIJO CON BOOTSTRAP ========== -->
+  <header class="dashboard-header">
+    <div class="container-fluid px-3 px-md-4 py-3">
+      <div class="row align-items-center g-3">
+
+        <!-- Logo Section -->
+        <div class="col-12 col-lg-6">
+          <div class="logo-section">
+            <div class="logo-icon">🍴</div>
+            <div class="logo-text">
+              <h1>Buen Sazón</h1>
+              <p>Panel de Administración</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- User Section -->
+        <div class="col-12 col-lg-6">
+          <div class="d-flex align-items-center justify-content-lg-end gap-2 gap-md-3 flex-wrap">
+            <div class="text-end">
+              <div class="user-name badge rounded-pill px-3 py-2 mb-1">
+                {{ usuario.nombre }}
+              </div>
+              <div class="user-role d-block">{{ usuario.rol }}</div>
+            </div>
+            <div class="user-avatar">{{ userInitial }}</div>
+            <button class="btn btn-logout rounded-pill px-3 px-md-4 py-2" (click)="logout()">
+              Cerrar Sesión
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO PRINCIPAL CON SCROLL ========== -->
+  <div class="main-content">
+    <div class="container-fluid px-3 px-md-4 py-4">
+
+      <!-- Sección de Bienvenida -->
+      <section class="welcome-section">
+        <h2>Centro de Control</h2>
+        <p>Gestiona todas las operaciones del restaurante</p>
+      </section>
+
+      <!-- Divisor Decorativo -->
+      <div class="divider">
+        <span>MÓDULOS DEL SISTEMA</span>
+      </div>
+
+      <!-- ========== GRID DE TARJETAS CON BOOTSTRAP ========== -->
+      <div class="row row-cols-1 row-cols-md-2 row-cols-xl-3 g-4">
+
+        <div class="col" *ngFor="let entity of entities; let i = index">
+          <article
+            class="card entity-card border-0 h-100"
+            (click)="navigateTo(entity.route)">
+
+            <div class="card-body p-4">
+              <!-- Badge -->
+              <span class="entity-badge">{{ entity.badge }}</span>
+
+              <!-- Icono -->
+              <div class="icon-wrapper">
+                <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                  <path [attr.d]="entity.icon"></path>
+                </svg>
+              </div>
+
+              <!-- Título y Descripción -->
+              <h3>{{ entity.title }}</h3>
+              <p>{{ entity.description }}</p>
+            </div>
+
+          </article>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+</div>

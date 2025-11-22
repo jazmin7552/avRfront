@@ -1,0 +1,354 @@
+<div class="container">
+
+  <!-- ========== HEADER FIJO ========== -->
+  <header class="header">
+    <div class="header-content">
+      <h1>◆ Gestión de Mesas ◆</h1>
+      <div class="btn-group">
+        <button class="btn btn-primary" (click)="abrirModalCrear()">
+          + Nueva Mesa
+        </button>
+        <button class="btn btn-secondary" (click)="volverAlDashboard()">
+          Volver al Dashboard
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO CON SCROLL ========== -->
+  <main class="main-content">
+
+    <div class="content-card">
+
+      <!-- Estadísticas -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Mesas</h3>
+          <div class="number">{{ (mesas && mesas.length) || 0 }}</div>
+        </div>
+        <div class="stat-card stat-disponible">
+          <h3>Disponibles</h3>
+          <div class="number">{{ mesasDisponibles }}</div>
+        </div>
+        <div class="stat-card stat-ocupada">
+          <h3>Ocupadas</h3>
+          <div class="number">{{ mesasOcupadas }}</div>
+        </div>
+        <div class="stat-card stat-reservada">
+          <h3>Reservadas</h3>
+          <div class="number">{{ mesasReservadas }}</div>
+        </div>
+      </div>
+
+      <!-- Mensaje -->
+      <div *ngIf="mensaje" class="message" [ngClass]="tipoMensaje">
+        {{ mensaje }}
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters-section">
+        <h3>🔍 Filtros de Búsqueda</h3>
+        <div class="filters-grid">
+          <div class="form-group">
+            <label for="filterNumero">Buscar por ubicación</label>
+            <input
+              type="text"
+              id="filterNumero"
+              [(ngModel)]="filtros.numero"
+              placeholder="Ubicación de mesa..."
+            >
+          </div>
+          <div class="form-group">
+            <label for="filterEstado">Estado</label>
+            <select id="filterEstado" [(ngModel)]="filtros.estado">
+              <option value="">Todos los estados</option>
+              <option value="DISPONIBLE">Disponible</option>
+              <option value="OCUPADA">Ocupada</option>
+              <option value="RESERVADA">Reservada</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="filterCapacidad">Capacidad mínima</label>
+            <input
+              type="number"
+              id="filterCapacidad"
+              [(ngModel)]="filtros.capacidadMin"
+              min="1"
+              placeholder="Ej: 4"
+            >
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" (click)="aplicarFiltros()">
+            Aplicar Filtros
+          </button>
+          <button class="btn btn-secondary" (click)="limpiarFiltros()">
+            Limpiar
+          </button>
+          <button class="btn btn-warning" (click)="verDisponibles()">
+            Ver Disponibles
+          </button>
+        </div>
+      </div>
+
+      <!-- Selector de Vista -->
+      <div class="view-toggle">
+        <button
+          class="btn btn-small"
+          [class.active]="vistaActual === 'cuadricula'"
+          (click)="vistaActual = 'cuadricula'"
+        >
+          📊 Vista Cuadrículas
+        </button>
+        <button
+          class="btn btn-small"
+          [class.active]="vistaActual === 'tabla'"
+          (click)="vistaActual = 'tabla'"
+        >
+          📋 Vista Tabla
+        </button>
+      </div>
+
+      <!-- Loading -->
+      <div *ngIf="loading" class="loading">
+        <div class="spinner"></div>
+        <p>Cargando mesas...</p>
+      </div>
+
+      <!-- VISTA DE CUADRÍCULAS -->
+      <div *ngIf="!loading && vistaActual === 'cuadricula'" class="grid-section">
+        <h2>Layout del Restaurante</h2>
+
+        <div class="mesas-grid" *ngIf="mesas && mesas.length > 0">
+          <div
+            *ngFor="let mesa of mesas"
+            class="mesa-card"
+            [ngClass]="mesa.estado ? 'mesa-' + mesa.estado.toLowerCase() : 'mesa-disponible'"
+          >
+            <div class="mesa-icon">🍽️</div>
+            <div class="mesa-numero">{{ mesa.ubicacion || 'Sin ubicación' }}</div>
+            <div class="mesa-info">
+              <div class="capacidad">
+                <span class="icon">👥</span>
+                <span>{{ mesa.capacidad || 0 }}</span>
+              </div>
+              <div class="estado-badge" [ngClass]="getBadgeClass(mesa.estado || '')">
+                {{ mesa.estado || 'SIN ESTADO' }}
+              </div>
+            </div>
+            <div class="mesa-actions">
+              <button
+                class="btn-icon btn-edit"
+                (click)="abrirModalEditar(mesa)"
+                title="Editar"
+              >
+                ✏️
+              </button>
+              <button
+                class="btn-icon btn-danger"
+                (click)="abrirModalEliminar(mesa)"
+                title="Eliminar"
+              >
+                🗑️
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!mesas || mesas.length === 0" class="empty-state">
+          No hay mesas para mostrar.
+        </div>
+      </div>
+
+      <!-- VISTA DE TABLA -->
+      <div *ngIf="!loading && vistaActual === 'tabla'" class="table-section">
+        <h2>Listado de Mesas</h2>
+
+        <div class="table-wrapper">
+          <table *ngIf="mesas && mesas.length > 0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Ubicación</th>
+                <th>Capacidad</th>
+                <th>Estado</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let mesa of mesas">
+                <td>{{ mesa.idMesa || '-' }}</td>
+                <td><strong>{{ mesa.ubicacion || 'Sin ubicación' }}</strong></td>
+                <td>{{ mesa.capacidad || 0 }} personas</td>
+                <td>
+                  <span class="badge" [ngClass]="getBadgeClass(mesa.estado || '')">
+                    {{ mesa.estado || 'SIN ESTADO' }}
+                  </span>
+                </td>
+                <td style="text-align: center;">
+                  <div class="actions">
+                    <button
+                      class="btn btn-small btn-edit"
+                      (click)="abrirModalEditar(mesa)"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      class="btn btn-small btn-danger"
+                      (click)="abrirModalEliminar(mesa)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <div *ngIf="!mesas || mesas.length === 0" class="empty-state">
+            No hay mesas para mostrar.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- ========== MODAL CREAR ========== -->
+<div class="modal" [class.show]="mostrarModalCrear">
+  <div class="modal-content">
+    <h3>Nueva Mesa</h3>
+    <form (ngSubmit)="crearMesa()">
+      <div class="form-group">
+        <label for="createNumero">Ubicación de Mesa *</label>
+        <input
+          type="text"
+          id="createNumero"
+          [(ngModel)]="nuevaMesa.ubicacion"
+          name="ubicacion"
+          placeholder="Ej: Sala A, Mesa 1"
+          maxlength="50"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="createCapacidad">Capacidad *</label>
+        <input
+          type="number"
+          id="createCapacidad"
+          [(ngModel)]="nuevaMesa.capacidad"
+          name="capacidad"
+          min="1"
+          placeholder="Ej: 4"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="createEstado">Estado *</label>
+        <select
+          id="createEstado"
+          [(ngModel)]="nuevaMesa.estadoId"
+          name="estadoId"
+          required
+        >
+          <option [ngValue]="1">1 - Disponible</option>
+          <option [ngValue]="2">2 - Ocupada</option>
+          <option [ngValue]="3">3 - Reservada</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalCrear()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          Crear
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL EDITAR ========== -->
+<div class="modal" [class.show]="mostrarModalEditar && mesaEditando">
+  <div class="modal-content">
+    <h3>Editar Mesa</h3>
+    <p *ngIf="mesaEditando" style="color: #b8a896; margin-bottom: 20px; text-align: center;">
+      ID: <span>{{ mesaEditando.idMesa }}</span>
+    </p>
+    <form (ngSubmit)="actualizarMesa()" *ngIf="mesaEditando">
+      <div class="form-group">
+        <label for="editNumero">Ubicación de Mesa *</label>
+        <input
+          type="text"
+          id="editNumero"
+          [(ngModel)]="mesaEditando!.ubicacion"
+          name="ubicacion"
+          maxlength="50"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="editCapacidad">Capacidad *</label>
+        <input
+          type="number"
+          id="editCapacidad"
+          [(ngModel)]="mesaEditando!.capacidad"
+          name="capacidad"
+          min="1"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="editEstado">Estado *</label>
+        <select
+          id="editEstado"
+          [(ngModel)]="mesaEditando!.estadoId"
+          name="estadoId"
+          required
+        >
+          <option [ngValue]="1">1 - Disponible</option>
+          <option [ngValue]="2">2 - Ocupada</option>
+          <option [ngValue]="3">3 - Reservada</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalEditar()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          Actualizar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL ELIMINAR ========== -->
+<div class="modal" [class.show]="mostrarModalEliminar">
+  <div class="modal-content">
+    <h3>Confirmar Eliminación</h3>
+    <p style="color: #b8a896; margin-bottom: 30px; text-align: center;">
+      ¿Estás seguro de que deseas eliminar la mesa <strong style="color: #e0b588;">{{ mesaEliminar?.ubicacion || 'esta mesa' }}</strong>?
+    </p>
+    <p style="font-size: 13px; color: #e57373; text-align: center;">
+      Esta acción no se puede deshacer.
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="cerrarModalEliminar()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmarEliminar()" [disabled]="loading">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

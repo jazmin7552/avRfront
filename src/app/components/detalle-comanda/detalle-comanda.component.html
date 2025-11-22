@@ -1,0 +1,339 @@
+<div class="container">
+
+  <!-- ========== HEADER FIJO ========== -->
+  <header class="header">
+    <div class="header-content">
+      <h1>◆ Gestión de Detalles de Comanda ◆</h1>
+      <div class="btn-group">
+        <button class="btn btn-primary" (click)="abrirModalCrear()">
+          + Nuevo Detalle
+        </button>
+        <button class="btn btn-secondary" (click)="volverAlDashboard()">
+          Volver al Dashboard
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO CON SCROLL ========== -->
+  <main class="main-content">
+
+    <div class="content-card">
+
+      <!-- Estadísticas -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Detalles</h3>
+          <div class="number">{{ (detalles && detalles.length) || 0 }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Ventas Totales</h3>
+          <div class="number">${{ totalVentas | number:'1.2-2' }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Productos Únicos</h3>
+          <div class="number">{{ productosUnicos }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Promedio por Detalle</h3>
+          <div class="number">${{ promedioVenta | number:'1.2-2' }}</div>
+        </div>
+      </div>
+
+      <!-- Mensaje -->
+      <div *ngIf="mensaje" class="message" [ngClass]="tipoMensaje">
+        {{ mensaje }}
+      </div>
+
+      <!-- ========== FILTROS ========== -->
+      <section class="filters-section">
+        <h3>🔍 Filtros de Búsqueda</h3>
+        <div class="filters-grid">
+          <div class="form-group">
+            <label for="filterComanda">Comanda</label>
+            <select id="filterComanda" [(ngModel)]="filtros.comandaId">
+              <option value="">Todas las comandas</option>
+              <option *ngFor="let comanda of comandas" [value]="comanda.idComanda">
+                {{ getNombreComanda(comanda.idComanda) }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="filterProducto">Producto</label>
+            <select id="filterProducto" [(ngModel)]="filtros.productoId">
+              <option value="">Todos los productos</option>
+              <option *ngFor="let producto of productos" [value]="producto.idProducto">
+                {{ producto.nombre }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" (click)="aplicarFiltros()">
+            Aplicar Filtros
+          </button>
+          <button class="btn btn-secondary" (click)="limpiarFiltros()">
+            Limpiar
+          </button>
+        </div>
+      </section>
+
+      <!-- ========== TABLA DE DETALLES ========== -->
+      <section class="table-section">
+        <h2>Listado de Detalles</h2>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+          <div class="spinner"></div>
+          <p>Cargando detalles...</p>
+        </div>
+
+        <!-- Tabla -->
+        <div *ngIf="!loading" class="table-wrapper">
+          <table *ngIf="detalles && detalles.length > 0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Comanda</th>
+                <th>Producto</th>
+                <th>Precio Unit.</th>
+                <th>Cantidad</th>
+                <th>Subtotal</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let detalle of detalles">
+                <td>{{ detalle.idDetalleComanda }}</td>
+                <td>{{ getNombreComanda(detalle.comandaId) }}</td>
+                <td>{{ detalle.productoNombre || getNombreProducto(detalle.productoId) }}</td>
+                <td>${{ detalle.precioUnitario | number:'1.2-2' }}</td>
+                <td>{{ detalle.cantidad }}</td>
+                <td>
+                  <strong style="color: #e0b588;">
+                    ${{ detalle.subtotal | number:'1.2-2' }}
+                  </strong>
+                </td>
+                <td style="text-align: center;">
+                  <div class="actions">
+                    <button
+                      class="btn btn-small btn-edit"
+                      (click)="abrirModalEditar(detalle)"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      class="btn btn-small btn-danger"
+                      (click)="abrirModalEliminar(detalle)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Estado vacío -->
+          <div *ngIf="!detalles || detalles.length === 0" class="empty-state">
+            No hay detalles para mostrar.
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- ========== MODAL CREAR ========== -->
+<div class="modal" [class.show]="mostrarModalCrear">
+  <div class="modal-content">
+    <h3>Nuevo Detalle de Comanda</h3>
+    <form (ngSubmit)="crearDetalle()">
+      <div class="form-group">
+        <label for="createComanda">Comanda *</label>
+        <select
+          id="createComanda"
+          [(ngModel)]="nuevoDetalle.comandaId"
+          name="comandaId"
+          required
+        >
+          <option [value]="0">Seleccione una comanda</option>
+          <option *ngFor="let comanda of comandas" [value]="comanda.idComanda">
+            {{ getNombreComanda(comanda.idComanda) }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="createProducto">Producto *</label>
+        <select
+          id="createProducto"
+          [(ngModel)]="nuevoDetalle.productoId"
+          name="productoId"
+          (change)="onProductoChangeCrear()"
+          required
+        >
+          <option [value]="0">Seleccione un producto</option>
+          <option *ngFor="let producto of productos" [value]="producto.idProducto">
+            {{ producto.nombre }} - ${{ producto.precio | number:'1.2-2' }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="createCantidad">Cantidad *</label>
+        <input
+          type="number"
+          id="createCantidad"
+          [(ngModel)]="nuevoDetalle.cantidad"
+          name="cantidad"
+          min="1"
+          (input)="onCantidadChangeCrear()"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="createPrecio">Precio Unitario</label>
+        <input
+          type="text"
+          id="createPrecio"
+          [value]="'$' + (nuevoDetalle.precioUnitario || 0 | number:'1.2-2')"
+          readonly
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="createSubtotal">Subtotal</label>
+        <input
+          type="text"
+          id="createSubtotal"
+          [value]="'$' + (nuevoDetalle.subtotal || 0 | number:'1.2-2')"
+          readonly
+          class="subtotal-display"
+        >
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalCrear()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          Crear
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL EDITAR ========== -->
+<div class="modal" [class.show]="mostrarModalEditar && detalleEditando">
+  <div class="modal-content">
+    <h3>Editar Detalle de Comanda</h3>
+    <p *ngIf="detalleEditando" style="color: #b8a896; margin-bottom: 20px; text-align: center;">
+      ID: <span>{{ detalleEditando.idDetalleComanda }}</span>
+    </p>
+    <form (ngSubmit)="actualizarDetalle()" *ngIf="detalleEditando">
+      <div class="form-group">
+        <label for="editComanda">Comanda *</label>
+        <select
+          id="editComanda"
+          [(ngModel)]="detalleEditando!.comandaId"
+          name="comandaId"
+          required
+        >
+          <option [value]="0">Seleccione una comanda</option>
+          <option *ngFor="let comanda of comandas" [value]="comanda.idComanda">
+            {{ getNombreComanda(comanda.idComanda) }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editProducto">Producto *</label>
+        <select
+          id="editProducto"
+          [(ngModel)]="detalleEditando!.productoId"
+          name="productoId"
+          (change)="onProductoChangeEditar()"
+          required
+        >
+          <option [value]="0">Seleccione un producto</option>
+          <option *ngFor="let producto of productos" [value]="producto.idProducto">
+            {{ producto.nombre }} - ${{ producto.precio | number:'1.2-2' }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editCantidad">Cantidad *</label>
+        <input
+          type="number"
+          id="editCantidad"
+          [(ngModel)]="detalleEditando!.cantidad"
+          name="cantidad"
+          min="1"
+          (input)="onCantidadChangeEditar()"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="editPrecio">Precio Unitario</label>
+        <input
+          type="text"
+          id="editPrecio"
+          [value]="'$' + (detalleEditando!.precioUnitario || 0 | number:'1.2-2')"
+          readonly
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="editSubtotal">Subtotal</label>
+        <input
+          type="text"
+          id="editSubtotal"
+          [value]="'$' + (detalleEditando!.subtotal || 0 | number:'1.2-2')"
+          readonly
+          class="subtotal-display"
+        >
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalEditar()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          Actualizar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL ELIMINAR ========== -->
+<div class="modal" [class.show]="mostrarModalEliminar">
+  <div class="modal-content">
+    <h3>Confirmar Eliminación</h3>
+    <p style="color: #b8a896; margin-bottom: 30px; text-align: center;">
+      ¿Estás seguro de que deseas eliminar el detalle
+      #<strong>{{ detalleEliminar?.idDetalleComanda }}</strong>?
+    </p>
+    <p style="font-size: 13px; color: #e57373; text-align: center;">
+      Esta acción no se puede deshacer.
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="cerrarModalEliminar()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmarEliminar()" [disabled]="loading">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

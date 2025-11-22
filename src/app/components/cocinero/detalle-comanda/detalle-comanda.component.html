@@ -1,0 +1,142 @@
+<div class="detalle-container">
+  <!-- Esquinas decorativas -->
+  <div class="decorative-corner corner-tl"></div>
+  <div class="decorative-corner corner-tr"></div>
+  <div class="decorative-corner corner-bl"></div>
+  <div class="decorative-corner corner-br"></div>
+
+  <!-- Header -->
+  <header class="detalle-header">
+    <div class="header-content">
+      <div class="header-left">
+        <button class="btn-back" (click)="volver()">← Volver</button>
+        <h1>👨‍🍳 Detalle de Comanda</h1>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando detalles de la comanda...</p>
+  </div>
+
+  <!-- Contenido principal -->
+  <div class="main-content" *ngIf="!loading && comanda">
+
+    <!-- Información de la comanda -->
+    <section class="comanda-info-section">
+      <div class="comanda-header-card">
+        <div class="comanda-titulo">
+          <h2>Comanda #{{ comanda.comandaId }}</h2>
+          <div class="comanda-estado" [ngClass]="getEstadoClase(comanda.estadoNombre)">
+            <span class="estado-icon">{{ getEstadoIcono(comanda.estadoNombre) }}</span>
+            <span class="estado-texto">{{ getEstadoTexto(comanda.estadoNombre) }}</span>
+          </div>
+        </div>
+
+        <div class="comanda-info-grid">
+          <div class="info-item">
+            <span class="info-icon">🪑</span>
+            <span class="info-label">Mesa:</span>
+            <span class="info-value">{{ comanda.mesaId }}</span>
+          </div>
+          <div class="info-item">
+            <span class="info-icon">🕐</span>
+            <span class="info-label">Hora:</span>
+            <span class="info-value">{{ comanda.fecha | date:'HH:mm' }}</span>
+          </div>
+          <div class="info-item" *ngIf="comanda.meseroNombre">
+            <span class="info-icon">👤</span>
+            <span class="info-label">Mesero:</span>
+            <span class="info-value">{{ comanda.meseroNombre }}</span>
+          </div>
+          <div class="info-item" *ngIf="comanda.cocineroNombre">
+            <span class="info-icon">👨‍🍳</span>
+            <span class="info-label">Cocinero:</span>
+            <span class="info-value">{{ comanda.cocineroNombre }}</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detalles de productos -->
+    <section class="productos-section" *ngIf="comanda.detalles && comanda.detalles.length > 0">
+      <h3>📦 Productos Solicitados</h3>
+      <div class="productos-list">
+        <div
+          *ngFor="let detalle of comanda.detalles"
+          class="producto-item">
+
+          <div class="producto-info">
+            <div class="producto-nombre">
+              {{ detalle.nombreProducto || 'Producto ' + detalle.productoId }}
+            </div>
+            <div class="producto-detalles">
+              <span class="producto-cantidad">{{ detalle.cantidad }}x</span>
+              <span class="producto-precio">${{ detalle.precioUnitario | number:'1.2-2' }} c/u</span>
+            </div>
+          </div>
+
+          <div class="producto-total">
+            <span class="total-label">Subtotal:</span>
+            <span class="total-valor">${{ detalle.subtotal | number:'1.2-2' }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Total general -->
+      <div class="comanda-total">
+        <div class="total-line">
+          <span class="total-label">Total de la Comanda:</span>
+          <span class="total-valor">${{ calcularTotalComanda() | number:'1.2-2' }}</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Acciones del cocinero -->
+    <section class="acciones-section">
+      <h3>🔥 Acciones de Cocina</h3>
+      <div class="acciones-grid">
+        <button
+          class="btn-accion btn-iniciar"
+          [disabled]="!puedeIniciarPreparacion()"
+          (click)="iniciarPreparacion()">
+          <span class="btn-icon">👨‍🍳</span>
+          <span class="btn-text">Iniciar Preparación</span>
+        </button>
+
+        <button
+          class="btn-accion btn-lista"
+          [disabled]="!puedeMarcarComoLista()"
+          (click)="marcarComoLista()">
+          <span class="btn-icon">✅</span>
+          <span class="btn-text">Marcar como Lista</span>
+        </button>
+      </div>
+
+      <!-- Estado actual -->
+      <div class="estado-actual">
+        <p>Estado actual: <strong>{{ getEstadoTexto(comanda.estadoNombre) }}</strong></p>
+        <p *ngIf="comanda.estadoNombre === 'PENDIENTE'" class="estado-info">
+          ⏳ Esta comanda está esperando ser preparada
+        </p>
+        <p *ngIf="comanda.estadoNombre === 'EN_PREPARACION'" class="estado-info">
+          🔥 Esta comanda está siendo preparada
+        </p>
+        <p *ngIf="comanda.estadoNombre === 'LISTA'" class="estado-info">
+          ✅ Esta comanda está lista para ser servida
+        </p>
+      </div>
+    </section>
+
+  </div>
+
+  <!-- Mensaje de error si no hay comanda -->
+  <div class="error-state" *ngIf="!loading && !comanda">
+    <div class="error-icon">❌</div>
+    <h3>No se pudo cargar la comanda</h3>
+    <p>La comanda solicitada no existe o ha sido eliminada.</p>
+    <button class="btn-error-action" (click)="volver()">Volver a Comandas</button>
+  </div>
+</div>

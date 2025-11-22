@@ -1,0 +1,257 @@
+<div class="container-main">
+
+  <!-- ========== HEADER FIJO CON BOOTSTRAP ========== -->
+  <header class="dashboard-header">
+    <div class="container-fluid px-3 px-md-4 py-3">
+      <div class="row align-items-center g-3">
+        <div class="col-12 col-lg-8">
+          <h1>◆ Gestión de Usuarios ◆</h1>
+        </div>
+        <div class="col-12 col-lg-4">
+          <div class="d-flex justify-content-lg-end">
+            <button class="btn btn-volver rounded-pill px-4 py-2" (click)="volverAlDashboard()">
+              ← Volver al Dashboard
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO PRINCIPAL CON SCROLL ========== -->
+  <main class="main-content" style="width: 100%;">
+    <div class="container-fluid px-3 px-md-4 py-4" style="width: 100%;">
+
+      <div class="content-card rounded-4 p-3 p-md-4">
+
+        <!-- ========== MENSAJES DE ALERTA ========== -->
+        <div *ngIf="mensaje" class="alert message rounded-3 mb-4" [ngClass]="tipoMensaje" role="alert">
+          {{ mensaje }}
+        </div>
+
+        <!-- ========== FILTROS ========== -->
+        <section class="filters-section rounded-4 p-3 p-md-4 mb-5">
+          <div class="row g-3 align-items-end">
+
+            <div class="col-12 col-md-4">
+              <label for="filterRol" class="form-label mb-2">Filtrar por Rol</label>
+              <select
+                id="filterRol"
+                class="form-select rounded-3 py-2"
+                [(ngModel)]="filtroRol"
+                (change)="filtrarPorRol()">
+                <option value="">Todos los roles</option>
+                <option value="ADMIN">Admin</option>
+                <option value="MESERO">Mesero</option>
+                <option value="COCINERO">Cocinero</option>
+              </select>
+            </div>
+
+            <div class="col-12 col-md-5">
+              <label for="searchEmail" class="form-label mb-2">Buscar por Email</label>
+              <input
+                type="email"
+                id="searchEmail"
+                class="form-control rounded-3 py-2"
+                [(ngModel)]="emailBusqueda"
+                placeholder="ejemplo@email.com">
+            </div>
+
+            <div class="col-12 col-md-3">
+              <button class="btn btn-action btn-primary rounded-pill py-2 w-100" (click)="buscarPorEmail()">
+                🔍 Buscar
+              </button>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ========== FORMULARIO ========== -->
+        <section class="mb-5">
+          <h2 class="section-title">
+            {{ modoEdicion ? '✏️ Editar Usuario' : '➕ Nuevo Usuario' }}
+          </h2>
+
+          <form (ngSubmit)="guardarUsuario()" class="mb-4">
+            <div class="row g-3 mb-4">
+
+              <div class="col-12 col-md-6">
+                <label for="nombre" class="form-label mb-2">Nombre Completo</label>
+                <input
+                  type="text"
+                  id="nombre"
+                  name="nombre"
+                  class="form-control rounded-3 py-2"
+                  [(ngModel)]="usuario.nombre"
+                  placeholder="Juan Pérez González"
+                  maxlength="50"
+                  required>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label for="email" class="form-label mb-2">Correo Electrónico</label>
+                <input
+                  type="email"
+                  id="email"
+                  name="email"
+                  class="form-control rounded-3 py-2"
+                  [(ngModel)]="usuario.email"
+                  placeholder="juan@email.com"
+                  maxlength="100"
+                  required>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label for="password" class="form-label mb-2">Contraseña</label>
+                <input
+                  type="password"
+                  id="password"
+                  name="password"
+                  class="form-control rounded-3 py-2"
+                  [(ngModel)]="usuario.password"
+                  placeholder="••••••••"
+                  minlength="6">
+                <div class="form-text mt-2">
+                  Mínimo 6 caracteres (dejar vacío al editar para mantener la actual)
+                </div>
+              </div>
+
+              <div class="col-12 col-md-6">
+                <label for="rolId" class="form-label mb-2">Rol del Usuario</label>
+                <select
+                  id="rolId"
+                  name="rolId"
+                  class="form-select rounded-3 py-2"
+                  [(ngModel)]="usuario.rolId"
+                  required>
+                  <option value="">Seleccionar rol...</option>
+                  <option value="1">👑 Admin</option>
+                  <option value="2">👨‍💼 Mesero</option>
+                  <option value="3">👨‍🍳 Cocinero</option>
+                </select>
+              </div>
+
+            </div>
+
+            <div class="d-flex gap-3 justify-content-end flex-wrap">
+              <button
+                *ngIf="modoEdicion"
+                type="button"
+                class="btn btn-action btn-secondary rounded-pill px-4 py-2"
+                (click)="cancelarEdicion()">
+                ✕ Cancelar
+              </button>
+              <button
+                type="submit"
+                class="btn btn-action btn-primary rounded-pill px-4 py-2"
+                [disabled]="loading">
+                <span *ngIf="!loading">{{ modoEdicion ? '💾 Actualizar' : '➕ Guardar' }}</span>
+                <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Guardando...</span>
+              </button>
+            </div>
+          </form>
+        </section>
+
+        <!-- ========== TABLA DE USUARIOS ========== -->
+        <section>
+          <h2 class="section-title">📋 Listado de Usuarios</h2>
+
+          <!-- Loading -->
+          <div *ngIf="loading" class="loading">
+            <div class="spinner"></div>
+            <p>Cargando usuarios...</p>
+          </div>
+
+          <!-- Tabla -->
+          <div *ngIf="!loading" class="table-responsive rounded-4" style="width: 100%; overflow: auto;">
+            <table *ngIf="usuarios.length > 0" class="table table-custom table-hover mb-0" style="width: 100%;">
+              <thead style="position: sticky; top: 0;">
+                <tr>
+                  <th scope="col">ID</th>
+                  <th scope="col">Nombre</th>
+                  <th scope="col">Email</th>
+                  <th scope="col">Rol</th>
+                  <th scope="col" class="text-center">Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of usuarios">
+                  <td><strong>{{ user.idUsuario }}</strong></td>
+                  <td>{{ user.nombre }}</td>
+                  <td>{{ user.email }}</td>
+                  <td>
+                    <span
+                      class="badge rounded-pill px-3 py-2"
+                      [ngClass]="'badge-' + (user.rolNombre?.toLowerCase() || 'default')">
+                      {{ user.rolNombre || 'Sin rol' }}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
+                      <button
+                        class="btn btn-action btn-edit btn-sm rounded-pill px-3"
+                        (click)="editarUsuario(user)"
+                        title="Editar usuario">
+                        ✏️ Editar
+                      </button>
+                      <button
+                        class="btn btn-action btn-danger btn-sm rounded-pill px-3"
+                        (click)="abrirModalEliminar(user)"
+                        title="Eliminar usuario">
+                        🗑️ Eliminar
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+
+            <!-- Estado vacío -->
+            <div *ngIf="usuarios.length === 0" class="empty-state py-5">
+              <p style="font-size: 3rem; margin-bottom: 1rem;">📭</p>
+              <p>No hay usuarios registrados en el sistema.</p>
+            </div>
+          </div>
+        </section>
+
+      </div>
+
+    </div>
+  </main>
+
+</div>
+
+<!-- ========== MODAL ELIMINAR USUARIO ========== -->
+<div class="modal-overlay" [class.show]="mostrarModalEliminar">
+  <div class="modal-custom rounded-4 p-4 mx-3" style="width: 100%; max-width: 500px;">
+    <div class="modal-header border-0 pb-3">
+      <h3 class="modal-title">⚠️ Confirmar Eliminación</h3>
+    </div>
+    <div class="modal-body py-3">
+      <p class="mb-3">
+        ¿Estás seguro de que deseas eliminar al usuario <strong>"{{ usuarioEliminar?.nombre }}"</strong>?
+      </p>
+      <p class="text-warning-custom mb-0" style="font-size: 0.85rem;">
+        Esta acción no se puede deshacer y se perderán todos los datos asociados.
+      </p>
+    </div>
+    <div class="modal-footer border-0 pt-3">
+      <div class="d-flex gap-3 justify-content-end w-100 flex-wrap">
+        <button
+          type="button"
+          class="btn btn-action btn-secondary rounded-pill px-4 py-2"
+          (click)="cerrarModalEliminar()">
+          ✕ Cancelar
+        </button>
+        <button
+          type="button"
+          class="btn btn-action btn-danger rounded-pill px-4 py-2"
+          (click)="confirmarEliminar()"
+          [disabled]="loading">
+          <span *ngIf="!loading">🗑️ Eliminar</span>
+          <span *ngIf="loading"><span class="spinner-border spinner-border-sm me-2"></span>Eliminando...</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

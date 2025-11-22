@@ -1,0 +1,568 @@
+/* 🎨 BOOTSTRAP + SCROLL PERSONALIZADO - Buen Sazón (Registro) */
+
+/* ========== RESET Y VARIABLES ========== */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  overflow: hidden;
+}
+
+:host {
+  display: block;
+  height: 100%;
+  --primary: #d4a574;
+  --secondary: #b88652;
+  --accent: #e0b588;
+  --text: #e0d5c7;
+  --text-light: #c9b8a6;
+  --bg-dark: #0a0705;
+  --bg-medium: #1a1410;
+  --bg-card: rgba(26, 20, 16, 0.9);
+}
+
+/* ========== CONTENEDOR PRINCIPAL ========== */
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  max-height: 100vh;
+  overflow: hidden;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+  background: linear-gradient(135deg, #1a1410 0%, #2d1f16 50%, #1a1410 100%);
+  position: relative;
+  justify-content: center;
+  align-items: center;
+}
+
+/* Efecto de fondo animado */
+.container::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background: radial-gradient(circle, rgba(212, 165, 116, 0.03) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: moveBackground 20s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes moveBackground {
+  0% {
+    transform: translate(0, 0);
+  }
+
+  100% {
+    transform: translate(50px, 50px);
+  }
+}
+
+/* ========== ESQUINAS DECORATIVAS ========== */
+.decorative-corner {
+  position: absolute;
+  width: 150px;
+  height: 150px;
+  border: 2px solid rgba(212, 165, 116, 0.2);
+  z-index: 1;
+}
+
+.corner-tl {
+  top: 20px;
+  left: 20px;
+  border-right: none;
+  border-bottom: none;
+}
+
+.corner-tr {
+  top: 20px;
+  right: 20px;
+  border-left: none;
+  border-bottom: none;
+}
+
+.corner-bl {
+  bottom: 20px;
+  left: 20px;
+  border-right: none;
+  border-top: none;
+}
+
+.corner-br {
+  bottom: 20px;
+  right: 20px;
+  border-left: none;
+  border-top: none;
+}
+
+/* ========== WRAPPER CON SCROLL ========== */
+.register-wrapper {
+  position: relative;
+  z-index: 10;
+  max-height: 90vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 20px;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+/* 🎨 SCROLL PERSONALIZADO ELEGANTE */
+.register-wrapper::-webkit-scrollbar {
+  width: 12px;
+}
+
+.register-wrapper::-webkit-scrollbar-track {
+  background: rgba(26, 20, 16, 0.4);
+  border-radius: 10px;
+  margin: 5px;
+}
+
+.register-wrapper::-webkit-scrollbar-thumb {
+  background: linear-gradient(180deg, var(--primary), var(--secondary));
+  border-radius: 10px;
+  border: 3px solid rgba(26, 20, 16, 0.4);
+  transition: all 0.3s ease;
+}
+
+.register-wrapper::-webkit-scrollbar-thumb:hover {
+  background: linear-gradient(180deg, var(--accent), var(--primary));
+  border-color: rgba(26, 20, 16, 0.2);
+  box-shadow: 0 0 10px rgba(212, 165, 116, 0.5);
+}
+
+/* Firefox */
+.register-wrapper {
+  scrollbar-width: thin;
+  scrollbar-color: var(--primary) rgba(26, 20, 16, 0.3);
+}
+
+/* ========== CONTENEDOR DE REGISTRO ========== */
+.register-container {
+  background: linear-gradient(135deg, rgba(45, 31, 22, 0.75), rgba(26, 20, 16, 0.75));
+  padding: 50px 45px;
+  border-radius: 20px;
+  box-shadow:
+    0 0 80px rgba(212, 165, 116, 0.25),
+    inset 0 0 60px rgba(0, 0, 0, 0.2);
+  width: 450px;
+  max-width: 90%;
+  border: 1px solid rgba(212, 165, 116, 0.4);
+  backdrop-filter: blur(20px);
+  position: relative;
+  overflow: hidden;
+  animation: fadeIn 0.6s ease;
+  margin: 20px 0;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+.register-container::before {
+  content: '';
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  background: linear-gradient(45deg,
+      transparent,
+      rgba(212, 165, 116, 0.1),
+      transparent,
+      rgba(212, 165, 116, 0.1));
+  background-size: 200% 200%;
+  animation: borderGlow 3s ease infinite;
+  z-index: -1;
+  border-radius: 20px;
+}
+
+@keyframes borderGlow {
+
+  0%,
+  100% {
+    background-position: 0% 50%;
+  }
+
+  50% {
+    background-position: 100% 50%;
+  }
+}
+
+/* ========== LOGO ========== */
+.logo {
+  text-align: center;
+  margin-bottom: 35px;
+  position: relative;
+}
+
+.logo::before,
+.logo::after {
+  content: '◆';
+  color: #d4a574;
+  font-size: 12px;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  opacity: 0.5;
+}
+
+.logo::before {
+  left: 20px;
+}
+
+.logo::after {
+  right: 20px;
+}
+
+.logo h1 {
+  color: #e0b588;
+  font-size: 48px;
+  margin-bottom: 5px;
+  letter-spacing: 5px;
+  font-weight: 400;
+  text-shadow: 0 0 40px rgba(212, 165, 116, 0.6);
+  position: relative;
+}
+
+.logo p {
+  color: #b8a896;
+  font-size: 14px;
+  font-style: italic;
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+}
+
+/* ========== DIVISOR DECORATIVO ========== */
+.decorative-divider {
+  display: flex;
+  align-items: center;
+  margin: 30px 0;
+}
+
+.decorative-divider::before,
+.decorative-divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(to right, transparent, #d4a574, transparent);
+}
+
+.decorative-divider span {
+  padding: 0 15px;
+  color: #d4a574;
+  font-size: 12px;
+  letter-spacing: 2px;
+}
+
+/* ========== MENSAJES ========== */
+.message {
+  padding: 15px 20px;
+  border-radius: 10px;
+  margin-bottom: 25px;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+  animation: slideDown 0.4s ease;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.message.success {
+  background: rgba(76, 175, 80, 0.15);
+  color: #81c784;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.message.error {
+  background: rgba(244, 67, 54, 0.15);
+  color: #e57373;
+  border: 1px solid rgba(244, 67, 54, 0.3);
+}
+
+/* ========== FORMULARIO ========== */
+.form-group {
+  margin-bottom: 25px;
+  position: relative;
+}
+
+.input-wrapper {
+  position: relative;
+}
+
+label {
+  display: block;
+  color: #d4a574;
+  font-size: 13px;
+  margin-bottom: 10px;
+  font-weight: bold;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+}
+
+input,
+select {
+  width: 100%;
+  padding: 14px 18px;
+  border: 1px solid rgba(212, 165, 116, 0.3);
+  border-radius: 10px;
+  font-size: 15px;
+  background: rgba(26, 20, 16, 0.5);
+  transition: all 0.4s ease;
+  color: #e0d5c7;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+}
+
+/* Estilos específicos para el select */
+select.role-select {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23d4a574' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 18px center;
+  padding-right: 45px;
+}
+
+select.role-select option {
+  background: #1a1410;
+  color: #e0d5c7;
+  padding: 10px;
+}
+
+select.role-select option:disabled {
+  color: rgba(184, 168, 150, 0.5);
+}
+
+input::placeholder {
+  color: rgba(184, 168, 150, 0.5);
+}
+
+input:focus,
+select:focus {
+  outline: none;
+  border-color: #d4a574;
+  background: rgba(26, 20, 16, 0.8);
+  box-shadow: 0 0 20px rgba(212, 165, 116, 0.2);
+  transform: translateY(-2px);
+}
+
+/* ========== FORTALEZA DE CONTRASEÑA ========== */
+.password-strength {
+  margin-top: 8px;
+  height: 4px;
+  background: rgba(212, 165, 116, 0.2);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.password-strength-bar {
+  height: 100%;
+  width: 0;
+  transition: all 0.3s ease;
+  border-radius: 2px;
+}
+
+.strength-weak {
+  width: 33%;
+  background: #e57373;
+}
+
+.strength-medium {
+  width: 66%;
+  background: #ffb74d;
+}
+
+.strength-strong {
+  width: 100%;
+  background: #81c784;
+}
+
+/* ========== BOTONES ========== */
+.btn-container {
+  display: flex;
+  gap: 15px;
+  margin-top: 35px;
+}
+
+button {
+  flex: 1;
+  padding: 16px;
+  border: none;
+  border-radius: 10px;
+  font-size: 15px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  position: relative;
+  overflow: hidden;
+  font-family: 'Cormorant Garamond', 'Georgia', serif;
+}
+
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+button::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+button:hover:not(:disabled)::before {
+  width: 300px;
+  height: 300px;
+}
+
+.btn-register {
+  background: linear-gradient(135deg, #c89b68, #d4a574, #e0b588);
+  color: #1a1410;
+  box-shadow: 0 8px 25px rgba(212, 165, 116, 0.3);
+  position: relative;
+}
+
+.btn-register:hover:not(:disabled) {
+  transform: translateY(-3px);
+  box-shadow: 0 12px 35px rgba(212, 165, 116, 0.5);
+}
+
+.btn-register:active:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-back {
+  background: transparent;
+  color: #d4a574;
+  border: 2px solid #d4a574;
+}
+
+.btn-back:hover {
+  background: rgba(212, 165, 116, 0.1);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(212, 165, 116, 0.2);
+}
+
+/* ========== RESPONSIVE ========== */
+
+/* Tablet */
+@media (max-width: 768px) {
+  .register-container {
+    width: 90%;
+    padding: 30px 25px;
+  }
+
+  .logo h1 {
+    font-size: 36px;
+  }
+
+  .btn-container {
+    flex-direction: column;
+  }
+
+  .decorative-corner {
+    width: 100px;
+    height: 100px;
+  }
+}
+
+/* Móvil */
+@media (max-width: 480px) {
+  .register-wrapper {
+    padding: 10px;
+  }
+
+  .register-container {
+    padding: 25px 20px;
+  }
+
+  .logo h1 {
+    font-size: 32px;
+    letter-spacing: 3px;
+  }
+
+  .logo p {
+    font-size: 12px;
+  }
+
+  .decorative-corner {
+    width: 80px;
+    height: 80px;
+  }
+
+  .corner-tl,
+  .corner-tr {
+    top: 10px;
+  }
+
+  .corner-bl,
+  .corner-br {
+    bottom: 10px;
+  }
+
+  .corner-tl,
+  .corner-bl {
+    left: 10px;
+  }
+
+  .corner-tr,
+  .corner-br {
+    right: 10px;
+  }
+
+  input,
+  select {
+    font-size: 14px;
+    padding: 12px 15px;
+  }
+
+  button {
+    padding: 14px;
+    font-size: 13px;
+  }
+}
+
+/* Pantallas muy pequeñas */
+@media (max-width: 360px) {
+  .logo h1 {
+    font-size: 28px;
+  }
+
+  .register-container {
+    padding: 20px 15px;
+  }
+}

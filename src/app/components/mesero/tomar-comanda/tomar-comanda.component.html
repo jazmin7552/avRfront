@@ -1,0 +1,360 @@
+<div class="comanda-container">
+  <!-- Esquinas decorativas FIJAS -->
+  <div class="decorative-corner corner-tl"></div>
+  <div class="decorative-corner corner-tr"></div>
+  <div class="decorative-corner corner-bl"></div>
+  <div class="decorative-corner corner-br"></div>
+
+  <!-- Header FIJO con Bootstrap -->
+  <header class="comanda-header">
+    <div class="container-fluid px-3 px-md-4 py-3">
+      <div class="row align-items-center g-3">
+        <div class="col-12 col-lg-8">
+          <div class="d-flex flex-wrap align-items-center gap-2 gap-md-3">
+            <button class="btn btn-back rounded-pill" (click)="cancelar()">
+              ← Volver
+            </button>
+            <h1 class="mb-0">📝 Nueva Comanda</h1>
+            <span class="badge mesa-badge rounded-pill" *ngIf="mesaNumero">
+              {{ mesaNumero }}
+            </span>
+            <span class="badge mesa-badge rounded-pill" *ngIf="meseroNombre">
+              👤 {{ meseroNombre }}
+            </span>
+          </div>
+        </div>
+        <div class="col-12 col-lg-4 text-lg-end">
+          <button
+            class="btn btn-limpiar rounded-pill"
+            (click)="limpiarCarrito()"
+            *ngIf="carrito.length > 0">
+            🗑️ Limpiar
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando productos...</p>
+  </div>
+
+  <!-- Contenido principal con SCROLL -->
+  <div class="main-content" *ngIf="!loading">
+    <div class="container-fluid px-3 px-md-4 py-4">
+      <div class="row g-3 g-lg-4">
+
+        <!-- Columna izquierda: Productos -->
+        <div class="col-12 col-lg-8">
+          <div class="productos-section d-flex flex-column gap-3 gap-md-4">
+
+            <!-- Búsqueda -->
+            <div class="search-box">
+              <input
+                type="text"
+                [(ngModel)]="busqueda"
+                (input)="buscarProducto()"
+                placeholder="🔍 Buscar producto..."
+                class="form-control search-input rounded-pill px-4 py-3">
+            </div>
+
+            <!-- Filtros de categorías -->
+            <div class="categorias-filter d-flex flex-wrap gap-2">
+              <button
+                class="btn btn-categoria"
+                [class.active]="categoriaSeleccionada === null"
+                (click)="filtrarPorCategoria(null)">
+                Todos
+              </button>
+              <button
+                *ngFor="let categoria of categorias"
+                class="btn btn-categoria"
+                [class.active]="categoriaSeleccionada === categoria.idCategoria"
+                (click)="filtrarPorCategoria(categoria.idCategoria)">
+                {{ categoria.nombre }}
+              </button>
+            </div>
+
+            <!-- Grid de productos con Bootstrap -->
+            <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-2 row-cols-xl-3 g-3 g-md-4">
+              <div
+                *ngFor="let producto of productosFiltrados"
+                class="col">
+                <div
+                  class="card producto-card border-0 h-100"
+                  (click)="agregarAlCarrito(producto)">
+                  <div class="card-body p-3 p-md-4">
+
+                    <div class="producto-imagen text-center mb-3">
+                      <span class="producto-icon">🍽️</span>
+                    </div>
+
+                    <div class="producto-info">
+                      <h3 class="producto-nombre h5 mb-2">
+                        {{ producto.nombre }}
+                      </h3>
+                      <p class="producto-descripcion small mb-3" *ngIf="producto.descripcion">
+                        {{ producto.descripcion }}
+                      </p>
+                      <div class="producto-footer d-flex justify-content-between align-items-center pt-2 border-top">
+                        <span class="producto-precio fs-5">
+                          ${{ producto.precio | number:'1.0-0' }}
+                        </span>
+                        <span class="badge btn-agregar rounded-pill px-3 py-2">
+                          + Agregar
+                        </span>
+                      </div>
+                    </div>
+
+                  </div>
+                </div>
+              </div>
+
+              <!-- Empty State -->
+              <div class="col-12" *ngIf="productosFiltrados.length === 0">
+                <div class="empty-state py-5">
+                  <p class="mb-0">No se encontraron productos</p>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Columna derecha: Carrito STICKY -->
+        <div class="col-12 col-lg-4">
+          <div class="carrito-section">
+            <div class="carrito-container rounded-4 p-3 p-md-4">
+
+              <h2 class="text-center mb-3 pb-3">🛒 Carrito de Pedido</h2>
+
+              <!-- Selector de cocinero -->
+              <div class="selector-cocinero rounded-3 p-3 mb-3" *ngIf="carrito.length > 0">
+                <label class="form-label mb-2 small">
+                  👨‍🍳 Asignar a cocinero:
+                </label>
+                <select
+                  [(ngModel)]="cocineroSeleccionado"
+                  class="form-select select-cocinero rounded-3 py-2 px-3">
+                  <option value="">-- Selecciona un cocinero --</option>
+                  <option
+                    *ngFor="let cocinero of cocineros"
+                    [value]="cocinero.idUsuario">
+                    {{ cocinero.nombre || cocinero.nombreCompleto || 'Cocinero #' + cocinero.idUsuario }}
+                  </option>
+                </select>
+                <p class="hint-text small mb-0 mt-2 rounded-2 p-2" *ngIf="!cocineroSeleccionado">
+                  ⚠️ Debes seleccionar un cocinero para continuar
+                </p>
+              </div>
+
+              <!-- Carrito vacío -->
+              <div class="carrito-vacio py-5" *ngIf="carrito.length === 0">
+                <p class="mb-2">El carrito está vacío</p>
+                <span class="icon-vacio">🍽️</span>
+              </div>
+
+              <!-- Lista de items con scroll -->
+              <div class="carrito-items" *ngIf="carrito.length > 0">
+                <div *ngFor="let item of carrito" class="carrito-item rounded-3 p-3">
+
+                  <!-- Header del item -->
+                  <div class="item-header d-flex justify-content-between align-items-start mb-2">
+                    <h4 class="h6 mb-0 flex-grow-1">{{ item.producto.nombre }}</h4>
+                    <button
+                      class="btn btn-eliminar btn-sm ms-2 p-0"
+                      style="width: 28px; height: 28px;"
+                      (click)="eliminarDelCarrito(item)">
+                      ✕
+                    </button>
+                  </div>
+
+                  <!-- Precio -->
+                  <div class="item-precio small mb-2">
+                    <span>${{ item.producto.precio | number:'1.0-0' }}</span>
+                  </div>
+
+                  <!-- Controles -->
+                  <div class="item-controles d-flex justify-content-between align-items-center gap-2 mb-2">
+                    <div class="cantidad-controles d-flex align-items-center gap-2 rounded-pill px-2 py-1">
+                      <button
+                        class="btn btn-cantidad btn-sm p-0"
+                        style="width: 30px; height: 30px;"
+                        (click)="disminuirCantidad(item)">
+                        −
+                      </button>
+                      <span class="cantidad px-2">{{ item.cantidad }}</span>
+                      <button
+                        class="btn btn-cantidad btn-sm p-0"
+                        style="width: 30px; height: 30px;"
+                        (click)="aumentarCantidad(item)">
+                        +
+                      </button>
+                    </div>
+
+                    <button
+                      class="btn btn-observaciones btn-sm rounded-pill px-3 py-1"
+                      (click)="abrirModalObservaciones(item)">
+                      <small>📝 {{ item.observaciones ? 'Editar' : 'Agregar' }} nota</small>
+                    </button>
+                  </div>
+
+                  <!-- Observaciones -->
+                  <div class="item-observaciones rounded-2 p-2 mb-2" *ngIf="item.observaciones">
+                    <small>📌 {{ item.observaciones }}</small>
+                  </div>
+
+                  <!-- Subtotal -->
+                  <div class="item-subtotal text-end pt-2 border-top">
+                    <strong class="small">Subtotal: ${{ item.subtotal | number:'1.0-0' }}</strong>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Footer: Total y acciones -->
+              <div class="carrito-footer pt-3 mt-3" *ngIf="carrito.length > 0">
+                <div class="total-section d-flex justify-content-between align-items-center rounded-3 p-3 mb-3">
+                  <span class="total-label">TOTAL:</span>
+                  <span class="total-valor">${{ total | number:'1.0-0' }}</span>
+                </div>
+
+                <div class="acciones d-flex gap-2">
+                  <button
+                    class="btn btn-cancelar rounded-pill flex-fill py-2"
+                    (click)="cancelar()">
+                    Cancelar
+                  </button>
+                  <button
+                    class="btn btn-enviar rounded-pill flex-fill py-2"
+                    (click)="prepararEnvioComanda()"
+                    [disabled]="!cocineroSeleccionado">
+                    Enviar Comanda
+                  </button>
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de observaciones -->
+  <div class="modal-overlay" *ngIf="mostrarModalObservaciones" (click)="cerrarModalObservaciones()">
+    <div class="modal-content rounded-4" style="width: 90%; max-width: 500px;" (click)="$event.stopPropagation()">
+
+      <div class="modal-header p-4">
+        <h3 class="h4 mb-0">📝 Observaciones</h3>
+        <button
+          class="btn btn-cerrar-modal p-0"
+          style="width: 35px; height: 35px;"
+          (click)="cerrarModalObservaciones()">
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-body p-4">
+        <textarea
+          [(ngModel)]="observacionesTemporal"
+          placeholder="Ej: Sin cebolla, término medio, sin picante..."
+          rows="4"
+          class="form-control textarea-observaciones rounded-3"></textarea>
+      </div>
+
+      <div class="modal-footer p-4 d-flex gap-2">
+        <button
+          class="btn btn-modal-cancelar rounded-pill flex-fill py-2"
+          (click)="cerrarModalObservaciones()">
+          Cancelar
+        </button>
+        <button
+          class="btn btn-modal-guardar rounded-pill flex-fill py-2"
+          (click)="guardarObservaciones()">
+          Guardar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Modal de confirmación -->
+  <div class="modal-overlay" *ngIf="mostrarModalConfirmacion" (click)="cerrarModalConfirmacion()">
+    <div class="modal-content modal-confirmacion rounded-4" style="width: 90%; max-width: 600px;" (click)="$event.stopPropagation()">
+
+      <div class="modal-header p-4">
+        <h3 class="h4 mb-0">✓ Confirmar Comanda</h3>
+        <button
+          class="btn btn-cerrar-modal p-0"
+          style="width: 35px; height: 35px;"
+          (click)="cerrarModalConfirmacion()">
+          ✕
+        </button>
+      </div>
+
+      <div class="modal-body p-4">
+
+        <!-- Info de la comanda -->
+        <div class="confirmacion-info rounded-3 p-3 mb-3">
+          <div class="info-row d-flex justify-content-between align-items-center py-2">
+            <strong>Mesa:</strong>
+            <span>{{ mesaNumero }}</span>
+          </div>
+          <div class="info-row d-flex justify-content-between align-items-center py-2">
+            <strong>Mesero:</strong>
+            <span>{{ meseroNombre }}</span>
+          </div>
+          <div class="info-row d-flex justify-content-between align-items-center py-2">
+            <strong>Cocinero:</strong>
+            <span>{{ obtenerNombreCocinero() }}</span>
+          </div>
+          <div class="info-row d-flex justify-content-between align-items-center py-2">
+            <strong>Items:</strong>
+            <span>{{ carrito.length }} productos</span>
+          </div>
+          <div class="info-row total-row d-flex justify-content-between align-items-center py-3 mt-2">
+            <strong>TOTAL:</strong>
+            <strong class="fs-5">${{ total | number:'1.0-0' }}</strong>
+          </div>
+        </div>
+
+        <!-- Resumen de productos -->
+        <div class="productos-resumen rounded-3 p-3 mb-3">
+          <h4 class="h6 mb-3">Detalle del pedido:</h4>
+          <ul class="list-unstyled mb-0">
+            <li *ngFor="let item of carrito" class="mb-2">
+              {{ item.cantidad }}x {{ item.producto.nombre }}
+              <span *ngIf="item.observaciones" class="obs fst-italic small">
+                ({{ item.observaciones }})
+              </span>
+            </li>
+          </ul>
+        </div>
+
+        <p class="confirmacion-texto mb-0">
+          ¿Confirmas que deseas enviar esta comanda?
+        </p>
+
+      </div>
+
+      <div class="modal-footer p-4 d-flex gap-2">
+        <button
+          class="btn btn-modal-cancelar rounded-pill flex-fill py-2"
+          (click)="cerrarModalConfirmacion()">
+          Volver
+        </button>
+        <button
+          class="btn btn-modal-guardar rounded-pill flex-fill py-2"
+          (click)="confirmarEnvioComanda()">
+          ✓ Confirmar y Enviar
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

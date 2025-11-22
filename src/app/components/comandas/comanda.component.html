@@ -1,0 +1,392 @@
+<div class="container">
+
+  <!-- ========== HEADER FIJO ========== -->
+  <header class="header">
+    <div class="header-content">
+      <h1>◆ Gestión de Comandas ◆</h1>
+      <div class="btn-group">
+        <button class="btn btn-primary" (click)="abrirModalCrear()">
+          + Nueva Comanda
+        </button>
+        <button class="btn btn-secondary" (click)="volverAlDashboard()">
+          Volver al Dashboard
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO CON SCROLL ========== -->
+  <main class="main-content">
+
+    <div class="content-card">
+
+      <!-- Estadísticas -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Comandas</h3>
+          <div class="number">{{ (comandas && comandas.length) || 0 }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Activas</h3>
+          <div class="number">{{ comandasActivas }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Hoy</h3>
+          <div class="number">{{ comandasHoy }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Pendientes</h3>
+          <div class="number">{{ comandasPendientes }}</div>
+        </div>
+      </div>
+
+      <!-- Mensaje -->
+      <div *ngIf="mensaje" class="message" [ngClass]="tipoMensaje">
+        {{ mensaje }}
+      </div>
+
+      <!-- ========== FILTROS ========== -->
+      <section class="filters-section">
+        <h3>🔍 Filtros de Búsqueda</h3>
+        <div class="filters-grid">
+          <div class="form-group">
+            <label for="filterEstado">Estado</label>
+            <select id="filterEstado" [(ngModel)]="filtros.estadoId">
+              <option value="">Todos los estados</option>
+              <option *ngFor="let estado of estados" [value]="estado.idEstado">
+                {{ estado.nombre }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="filterMesa">Mesa</label>
+            <select id="filterMesa" [(ngModel)]="filtros.mesaId">
+              <option value="">Todas las mesas</option>
+              <option *ngFor="let mesa of mesas" [value]="mesa.idMesa">
+                {{ mesa.ubicacion }} (ID: {{ mesa.idMesa }})
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="filterMesero">Mesero</label>
+            <select id="filterMesero" [(ngModel)]="filtros.meseroId">
+              <option value="">Todos los meseros</option>
+              <option *ngFor="let mesero of meseros" [value]="mesero.id || mesero.idUsuario">
+                {{ mesero.nombre }}
+              </option>
+            </select>
+          </div>
+        </div>
+
+        <div class="btn-group">
+          <button class="btn btn-primary" (click)="aplicarFiltros()">
+            Aplicar Filtros
+          </button>
+          <button class="btn btn-secondary" (click)="limpiarFiltros()">
+            Limpiar
+          </button>
+          <button class="btn btn-warning" (click)="verActivas()">
+            Ver Activas
+          </button>
+        </div>
+      </section>
+
+      <!-- ========== TABLA DE COMANDAS ========== -->
+      <section class="table-section">
+        <h2>Listado de Comandas</h2>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+          <div class="spinner"></div>
+          <p>Cargando comandas...</p>
+        </div>
+
+        <!-- Tabla -->
+        <div *ngIf="!loading" class="table-wrapper">
+          <table *ngIf="comandas && comandas.length > 0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Fecha</th>
+                <th>Mesa</th>
+                <th>Mesero</th>
+                <th>Cocinero</th>
+                <th>Estado</th>
+                <th>Total</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let comanda of comandas">
+                <td>{{ comanda.idComanda }}</td>
+                <td style="white-space: nowrap;">{{ formatearFecha(comanda.fecha) }}</td>
+                <td>{{ comanda.mesaUbicacion || getNombreMesa(comanda.mesaId) }}</td>
+                <td>{{ comanda.meseroNombre || getNombreMesero(comanda.meseroId) }}</td>
+                <td>{{ comanda.cocineroNombre || getNombreCocinero(comanda.cocineroId) }}</td>
+                <td>
+                  <span class="badge" [ngClass]="getBadgeClass(comanda.estadoNombre)">
+                    {{ comanda.estadoNombre || getNombreEstado(comanda.estadoId) }}
+                  </span>
+                </td>
+                <td style="color: #e0b588; font-weight: bold;">
+                  ${{ comanda.total | number:'1.2-2' }}
+                </td>
+                <td style="text-align: center;">
+                  <div class="actions">
+                    <button
+                      class="btn btn-small btn-edit"
+                      (click)="abrirModalEditar(comanda)"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      class="btn btn-small btn-warning"
+                      (click)="abrirModalEstado(comanda)"
+                    >
+                      Estado
+                    </button>
+                    <button
+                      class="btn btn-small btn-danger"
+                      (click)="abrirModalEliminar(comanda)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Estado vacío -->
+          <div *ngIf="!comandas || comandas.length === 0" class="empty-state">
+            No hay comandas para mostrar.
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- ========== MODAL CREAR ========== -->
+<div class="modal" [class.show]="mostrarModalCrear">
+  <div class="modal-content">
+    <h3>Nueva Comanda</h3>
+    <form (ngSubmit)="crearComanda()">
+      <div class="form-group">
+        <label for="createMesa">Mesa *</label>
+        <select
+          id="createMesa"
+          [(ngModel)]="nuevaComanda.mesaId"
+          name="mesaId"
+          required
+        >
+          <option [value]="0">Seleccione una mesa</option>
+          <option *ngFor="let mesa of mesasDisponibles" [value]="mesa.idMesa">
+            {{ mesa.ubicacion }} ({{ mesa.capacidad }} personas)
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="createMesero">Mesero *</label>
+        <select
+          id="createMesero"
+          [(ngModel)]="nuevaComanda.meseroId"
+          name="meseroId"
+          required
+        >
+          <option value="">Seleccione un mesero</option>
+          <option *ngFor="let mesero of meseros" [value]="mesero.id || mesero.idUsuario">
+            {{ mesero.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="createCocinero">Cocinero *</label>
+        <select
+          id="createCocinero"
+          [(ngModel)]="nuevaComanda.cocineroId"
+          name="cocineroId"
+          required
+        >
+          <option value="">Seleccione un cocinero</option>
+          <option *ngFor="let cocinero of cocineros" [value]="cocinero.id || cocinero.idUsuario">
+            {{ cocinero.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="createEstado">Estado *</label>
+        <select
+          id="createEstado"
+          [(ngModel)]="nuevaComanda.estadoId"
+          name="estadoId"
+          required
+        >
+          <option [value]="0">Seleccione un estado</option>
+          <option *ngFor="let estado of estados" [value]="estado.idEstado">
+            {{ estado.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalCrear()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          Crear
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL EDITAR ========== -->
+<div class="modal" [class.show]="mostrarModalEditar && comandaEditando">
+  <div class="modal-content">
+    <h3>Editar Comanda</h3>
+    <p *ngIf="comandaEditando" style="color: #b8a896; margin-bottom: 20px; text-align: center;">
+      ID: <span>{{ comandaEditando.idComanda }}</span>
+    </p>
+    <form (ngSubmit)="actualizarComanda()" *ngIf="comandaEditando">
+      <div class="form-group">
+        <label for="editMesa">Mesa *</label>
+        <select
+          id="editMesa"
+          [(ngModel)]="comandaEditando!.mesaId"
+          name="mesaId"
+          required
+        >
+          <option [value]="0">Seleccione una mesa</option>
+          <option *ngFor="let mesa of mesas" [value]="mesa.idMesa">
+            {{ mesa.ubicacion }} ({{ mesa.capacidad }} personas)
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editMesero">Mesero *</label>
+        <select
+          id="editMesero"
+          [(ngModel)]="comandaEditando!.meseroId"
+          name="meseroId"
+          required
+        >
+          <option value="">Seleccione un mesero</option>
+          <option *ngFor="let mesero of meseros" [value]="mesero.id || mesero.idUsuario">
+            {{ mesero.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editCocinero">Cocinero *</label>
+        <select
+          id="editCocinero"
+          [(ngModel)]="comandaEditando!.cocineroId"
+          name="cocineroId"
+          required
+        >
+          <option value="">Seleccione un cocinero</option>
+          <option *ngFor="let cocinero of cocineros" [value]="cocinero.id || cocinero.idUsuario">
+            {{ cocinero.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editEstado">Estado *</label>
+        <select
+          id="editEstado"
+          [(ngModel)]="comandaEditando!.estadoId"
+          name="estadoId"
+          required
+        >
+          <option [value]="0">Seleccione un estado</option>
+          <option *ngFor="let estado of estados" [value]="estado.idEstado">
+            {{ estado.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editTotal">Total</label>
+        <input
+          type="number"
+          id="editTotal"
+          [(ngModel)]="comandaEditando!.total"
+          name="total"
+          step="0.01"
+          min="0"
+          readonly
+        >
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalEditar()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          Actualizar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL CAMBIAR ESTADO ========== -->
+<div class="modal" [class.show]="mostrarModalEstado">
+  <div class="modal-content">
+    <h3>Cambiar Estado de Comanda</h3>
+    <p style="color: #b8a896; margin-bottom: 20px; text-align: center;">
+      Comanda #<span>{{ comandaEstado?.idComanda }}</span>
+    </p>
+    <div class="estado-selector">
+      <div
+        *ngFor="let estado of estados"
+        class="estado-option"
+        [class.selected]="estadoSeleccionado === estado.idEstado"
+        (click)="seleccionarEstado(estado.idEstado)"
+      >
+        {{ estado.nombre }}
+      </div>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="cerrarModalEstado()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-primary" (click)="cambiarEstado()" [disabled]="loading">
+        Cambiar Estado
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL ELIMINAR ========== -->
+<div class="modal" [class.show]="mostrarModalEliminar">
+  <div class="modal-content">
+    <h3>Confirmar Eliminación</h3>
+    <p style="color: #b8a896; margin-bottom: 30px; text-align: center;">
+      ¿Estás seguro de que deseas eliminar la comanda #<strong>{{ comandaEliminar?.idComanda }}</strong>?
+    </p>
+    <p style="font-size: 13px; color: #e57373; text-align: center;">
+      Esta acción no se puede deshacer.
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="cerrarModalEliminar()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmarEliminar()" [disabled]="loading">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

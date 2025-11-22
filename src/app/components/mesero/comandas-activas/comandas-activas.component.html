@@ -1,0 +1,190 @@
+<div class="comandas-container">
+  <!-- Esquinas decorativas FIJAS -->
+  <div class="decorative-corner corner-tl"></div>
+  <div class="decorative-corner corner-tr"></div>
+  <div class="decorative-corner corner-bl"></div>
+  <div class="decorative-corner corner-br"></div>
+
+  <!-- Header FIJO con Bootstrap -->
+  <header class="comandas-header">
+    <div class="container-fluid px-3 px-md-4 py-3">
+      <div class="row align-items-center g-3">
+        <div class="col-12 col-md-6 d-flex align-items-center gap-3">
+          <button class="btn btn-back rounded-pill" (click)="volver()">
+            ← Volver
+          </button>
+          <h1 class="mb-0">📋 Comandas Activas</h1>
+        </div>
+        <div class="col-12 col-md-6 text-md-end">
+          <button class="btn btn-refresh rounded-pill" (click)="refrescar()">
+            🔄 Actualizar
+          </button>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Loading -->
+  <div class="loading" *ngIf="loading">
+    <div class="spinner"></div>
+    <p>Cargando comandas...</p>
+  </div>
+
+  <!-- Contenido principal con SCROLL -->
+  <div class="main-content" *ngIf="!loading">
+    <div class="container-fluid px-3 px-md-4 py-4">
+
+      <!-- Contadores con Bootstrap Grid (SOLO 3 ahora) -->
+      <section class="mb-4">
+        <div class="row g-3 g-md-4 justify-content-center">
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card contador-card border-0 h-100">
+              <div class="card-body p-3 p-md-4 d-flex align-items-center gap-3">
+                <div class="contador-icon">📊</div>
+                <div class="contador-info flex-grow-1">
+                  <p class="contador-label mb-1">Total Activas</p>
+                  <p class="contador-valor mb-0">{{ contadores.total }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card contador-card pendiente border-0 h-100">
+              <div class="card-body p-3 p-md-4 d-flex align-items-center gap-3">
+                <div class="contador-icon">⏳</div>
+                <div class="contador-info flex-grow-1">
+                  <p class="contador-label mb-1">Pendientes</p>
+                  <p class="contador-valor mb-0">{{ contadores.pendientes }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-12 col-sm-6 col-lg-4">
+            <div class="card contador-card lista border-0 h-100">
+              <div class="card-body p-3 p-md-4 d-flex align-items-center gap-3">
+                <div class="contador-icon">✅</div>
+                <div class="contador-info flex-grow-1">
+                  <p class="contador-label mb-1">Listas para Entregar</p>
+                  <p class="contador-valor mb-0">{{ contadores.listas }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Filtros (SOLO estados que existen en el backend) -->
+      <section class="mb-4">
+        <div class="d-flex flex-wrap gap-2 gap-md-3 justify-content-center">
+          <button
+            class="btn btn-filtro"
+            [class.active]="filtroEstado === 'TODAS'"
+            (click)="filtrarPorEstado('TODAS')">
+            📋 Todas
+          </button>
+          <button
+            class="btn btn-filtro"
+            [class.active]="filtroEstado === 'PENDIENTE'"
+            (click)="filtrarPorEstado('PENDIENTE')">
+            ⏳ Pendientes
+          </button>
+          <button
+            class="btn btn-filtro"
+            [class.active]="filtroEstado === 'LISTA'"
+            (click)="filtrarPorEstado('LISTA')">
+            ✅ Listas
+          </button>
+        </div>
+      </section>
+
+      <!-- Lista de comandas con Bootstrap Grid -->
+      <section>
+        <div class="row g-3 g-md-4">
+          <div
+            *ngFor="let comanda of comandasFiltradas"
+            class="col-12 col-md-6 col-xl-4">
+
+            <div class="card comanda-card border-0 h-100" (click)="verDetalleComanda(comanda)">
+              <div class="card-body p-3 p-md-4">
+
+                <!-- Header -->
+                <div class="comanda-header d-flex justify-content-between align-items-start mb-3 pb-3">
+                  <div class="comanda-numero">
+                    <span class="numero-label d-block">Comanda</span>
+                    <span class="numero-valor d-block">#{{ comanda.comandaId }}</span>
+                  </div>
+                  <div class="comanda-estado d-flex align-items-center gap-2 px-3 py-2"
+                       [ngClass]="getEstadoClase(comanda.estadoNombre)">
+                    <span class="estado-icon">{{ getEstadoIcono(comanda.estadoNombre) }}</span>
+                    <span class="estado-texto">{{ getEstadoTexto(comanda.estadoNombre) }}</span>
+                  </div>
+                </div>
+
+                <!-- Body -->
+                <div class="comanda-body mb-3">
+                  <div class="d-flex gap-4 mb-3">
+                    <div class="info-item d-flex align-items-center gap-2">
+                      <span class="info-icon">🪑</span>
+                      <span class="info-text">Mesa {{ comanda.mesaId }}</span>
+                    </div>
+                    <div class="info-item d-flex align-items-center gap-2">
+                      <span class="info-icon">🕐</span>
+                      <span class="info-text">{{ comanda.fecha | date:'HH:mm' }}</span>
+                    </div>
+                  </div>
+
+                  <!-- Productos -->
+                  <div class="comanda-productos p-3" *ngIf="comanda.detalles && comanda.detalles.length > 0">
+                    <div class="productos-header mb-2">
+                      <span>📦 {{ comanda.detalles.length }} producto(s)</span>
+                    </div>
+                    <div class="productos-preview d-flex flex-column gap-2">
+                      <div *ngFor="let detalle of comanda.detalles.slice(0, 3)"
+                           class="producto-preview-item d-flex gap-2">
+                        <span class="producto-cantidad">{{ detalle.cantidad }}x</span>
+                        <span class="producto-nombre">{{ detalle.nombreProducto || 'Producto' }}</span>
+                      </div>
+                      <span *ngIf="comanda.detalles.length > 3" class="productos-mas">
+                        +{{ comanda.detalles.length - 3 }} más...
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="comanda-footer d-flex justify-content-between align-items-center pt-3">
+                  <div class="comanda-total">
+                    <span class="total-label d-block">Total:</span>
+                    <span class="total-valor d-block">${{ calcularTotalComanda(comanda) | number:'1.0-0' }}</span>
+                  </div>
+                  <button class="btn btn-ver-detalle rounded-pill">Ver Detalle →</button>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Empty State -->
+          <div class="col-12" *ngIf="comandasFiltradas.length === 0">
+            <div class="empty-state d-flex flex-column align-items-center gap-3 py-5">
+              <div class="empty-icon">📭</div>
+              <p class="empty-text mb-3">
+                {{ filtroEstado === 'TODAS'
+                   ? 'No tienes comandas activas en este momento'
+                   : 'No hay comandas ' + getEstadoTexto(filtroEstado).toLowerCase() }}
+              </p>
+              <button class="btn btn-empty-action rounded-pill" (click)="volver()">
+                Volver al Dashboard
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>

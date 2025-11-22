@@ -1,0 +1,162 @@
+<div class="container">
+
+  <!-- ========== HEADER FIJO ========== -->
+  <header class="header">
+    <div class="header-content">
+      <h1>◆ Gestión de Estados ◆</h1>
+      <button class="btn btn-secondary" (click)="volverDashboard()">
+        Volver al Dashboard
+      </button>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO CON SCROLL ========== -->
+  <main class="main-content">
+
+    <div class="content-card">
+
+      <!-- Info Box -->
+      <div class="info-box">
+        <div class="info-title">Información sobre Estados</div>
+
+        <div class="info-content">
+          <div class="info-section">
+            <div class="info-section-title">Estados de Mesas</div>
+            <div class="info-list">
+              <div class="info-item">DISPONIBLE</div>
+              <div class="info-item">OCUPADA</div>
+              <div class="info-item">RESERVADA</div>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <div class="info-section-title">Estados de Comandas</div>
+            <div class="info-list">
+              <div class="info-item">LISTA</div>
+              <div class="info-item">ENTREGADA</div>
+              <div class="info-item">CANCELADA</div>
+              <div class="info-item">PENDIENTE</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Mensaje -->
+      <div *ngIf="message" [class]="'message ' + messageType">
+        {{ message }}
+      </div>
+
+      <!-- ========== FORMULARIO ========== -->
+      <section class="form-section">
+        <h2 id="formTitle">{{ editingId ? 'Editar Estado' : 'Nuevo Estado' }}</h2>
+        <form [formGroup]="estadoForm" (ngSubmit)="onSubmit()">
+          <div class="form-grid">
+            <div class="form-group">
+              <label for="nombre">Nombre del Estado</label>
+              <input
+                type="text"
+                id="nombre"
+                formControlName="nombre"
+                placeholder="Ej: DISPONIBLE, OCUPADA, RESERVADA, LISTA, ENTREGADA..."
+                maxlength="20"
+              >
+            </div>
+            <div class="btn-group">
+              <button type="submit" class="btn btn-primary" [disabled]="!estadoForm.valid">
+                {{ editingId ? 'Actualizar' : 'Guardar' }}
+              </button>
+              <button
+                type="button"
+                class="btn btn-secondary"
+                *ngIf="editingId"
+                (click)="cancelEdit()"
+              >
+                Cancelar
+              </button>
+            </div>
+          </div>
+        </form>
+      </section>
+
+      <!-- ========== TABLA DE ESTADOS ========== -->
+      <section class="table-section">
+        <h2>Listado de Estados</h2>
+
+        <!-- Loading -->
+        <div class="loading" *ngIf="loading">
+          <div class="spinner"></div>
+          <p>Cargando estados...</p>
+        </div>
+
+        <!-- Tabla -->
+        <div class="table-wrapper" *ngIf="!loading">
+          <table *ngIf="estados.length > 0; else emptyState">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Vista Previa</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let estado of estados">
+                <td>{{ estado.idEstado }}</td>
+                <td>{{ estado.nombre }}</td>
+                <td>
+                  <span [class]="'badge-estado ' + getEstadoClass(estado.nombre)">
+                    {{ estado.nombre }}
+                  </span>
+                </td>
+                <td style="text-align: center;">
+                  <div class="actions">
+                    <button
+                      class="btn btn-edit btn-small"
+                      (click)="editEstado(estado)"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      class="btn btn-danger btn-small"
+                      (click)="openModal(estado)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Estado vacío -->
+          <ng-template #emptyState>
+            <div class="empty-state">
+              No hay estados registrados. ¡Crea el primero!
+            </div>
+          </ng-template>
+        </div>
+      </section>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- ========== MODAL DE CONFIRMACIÓN ========== -->
+<div class="modal" [class.show]="showModal">
+  <div class="modal-content">
+    <h3>Confirmar Eliminación</h3>
+    <p style="color: #b8a896; margin-bottom: 30px; text-align: center;">
+      ¿Estás seguro de que deseas eliminar el estado
+      "<strong style="color: #e0b588;">{{ deleteEstado?.nombre }}</strong>"?
+    </p>
+    <p style="font-size: 13px; color: #e57373; text-align: center;">
+      Esta acción no se puede deshacer y puede afectar mesas y comandas asociadas.
+    </p>
+    <div class="modal-actions">
+      <button class="btn btn-secondary" (click)="closeModal()">Cancelar</button>
+      <button class="btn btn-danger" (click)="confirmDelete()">Eliminar</button>
+    </div>
+  </div>
+</div>

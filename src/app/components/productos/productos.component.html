@@ -1,0 +1,414 @@
+<div class="container">
+
+  <!-- ========== HEADER FIJO ========== -->
+  <header class="header">
+    <div class="header-content">
+      <h1>◆ Gestión de Productos ◆</h1>
+      <div class="btn-group">
+        <button class="btn btn-primary" (click)="abrirModalCrear()">
+          + Nuevo Producto
+        </button>
+        <button class="btn btn-secondary" (click)="volverAlDashboard()">
+          Volver al Dashboard
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO CON SCROLL ========== -->
+  <main class="main-content">
+
+    <div class="content-card">
+
+      <!-- Estadísticas -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <h3>Total Productos</h3>
+          <div class="number">{{ productos.length }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Activos</h3>
+          <div class="number">{{ productosActivos }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Stock Bajo</h3>
+          <div class="number">{{ productosStockBajo }}</div>
+        </div>
+        <div class="stat-card">
+          <h3>Valor Inventario</h3>
+          <div class="number">${{ valorInventario | number:'1.2-2' }}</div>
+        </div>
+      </div>
+
+      <!-- Mensaje -->
+      <div *ngIf="mensaje" class="message" [ngClass]="tipoMensaje">
+        {{ mensaje }}
+      </div>
+
+      <!-- Filtros -->
+      <div class="filters-section">
+        <h3>🔍 Filtros de Búsqueda</h3>
+        <div class="filters-grid">
+          <div class="form-group">
+            <label for="filterNombre">Buscar por nombre</label>
+            <input
+              type="text"
+              id="filterNombre"
+              [(ngModel)]="filtros.nombre"
+              placeholder="Nombre del producto..."
+            >
+          </div>
+          <div class="form-group">
+            <label for="filterCategoria">Categoría</label>
+            <select id="filterCategoria" [(ngModel)]="filtros.categoriaId">
+              <option value="">Todas las categorías</option>
+              <option *ngFor="let cat of categorias" [value]="cat.idCategoria">
+                {{ cat.nombre }}
+              </option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="filterEstado">Estado</label>
+            <select id="filterEstado" [(ngModel)]="filtros.estado">
+              <option value="">Todos</option>
+              <option value="true">Activos</option>
+              <option value="false">Inactivos</option>
+            </select>
+          </div>
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-primary" (click)="aplicarFiltros()">
+            Aplicar Filtros
+          </button>
+          <button class="btn btn-secondary" (click)="limpiarFiltros()">
+            Limpiar
+          </button>
+          <button class="btn btn-warning" (click)="verStockBajo()">
+            Ver Stock Bajo
+          </button>
+        </div>
+      </div>
+
+      <!-- Tabla -->
+      <div class="table-section">
+        <h2>Listado de Productos</h2>
+
+        <!-- Loading -->
+        <div *ngIf="loading" class="loading">
+          <div class="spinner"></div>
+          <p>Cargando productos...</p>
+        </div>
+
+        <!-- Tabla -->
+        <div *ngIf="!loading" class="table-wrapper">
+          <table *ngIf="productos.length > 0">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Categoría</th>
+                <th>Precio</th>
+                <th>Stock</th>
+                <th>Estado</th>
+                <th style="text-align: center;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let producto of productos">
+                <td>{{ producto.idProducto }}</td>
+                <td><strong>{{ producto.nombre }}</strong></td>
+                <td>{{ producto.categoriaNombre || '-' }}</td>
+                <td style="color: #e0b588; font-weight: bold;">
+                  ${{ producto.precio | number:'1.2-2' }}
+                </td>
+                <td [ngClass]="producto.stock < 10 ? 'stock-bajo' : 'stock-normal'">
+                  {{ producto.stock }}
+                </td>
+                <td>
+                  <span class="badge" [ngClass]="producto.estado ? 'badge-activo' : 'badge-inactivo'">
+                    {{ producto.estado ? 'Activo' : 'Inactivo' }}
+                  </span>
+                </td>
+                <td style="text-align: center;">
+                  <div class="actions">
+                    <button
+                      class="btn btn-small btn-edit"
+                      (click)="abrirModalEditar(producto)"
+                    >
+                      Editar
+                    </button>
+                    <button
+                      class="btn btn-small btn-success"
+                      (click)="abrirModalStock(producto)"
+                    >
+                      Stock
+                    </button>
+                    <button
+                      class="btn btn-small btn-warning"
+                      (click)="toggleEstado(producto)"
+                    >
+                      {{ producto.estado ? 'Desactivar' : 'Activar' }}
+                    </button>
+                    <button
+                      class="btn btn-small btn-danger"
+                      (click)="abrirModalEliminar(producto)"
+                    >
+                      Eliminar
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+
+          <!-- Estado vacío -->
+          <div *ngIf="productos.length === 0" class="empty-state">
+            No hay productos para mostrar.
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+  </main>
+
+</div>
+
+<!-- ========== MODAL CREAR PRODUCTO ========== -->
+<div class="modal" [class.show]="mostrarModalCrear">
+  <div class="modal-content">
+    <h3>Nuevo Producto</h3>
+    <form (ngSubmit)="crearProducto()">
+      <div class="form-group">
+        <label for="createNombre">Nombre *</label>
+        <input
+          type="text"
+          id="createNombre"
+          [(ngModel)]="nuevoProducto.nombre"
+          name="nombre"
+          placeholder="Nombre del producto"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="createCategoria">Categoría *</label>
+        <select
+          id="createCategoria"
+          [(ngModel)]="nuevoProducto.categoriaId"
+          name="categoriaId"
+          required
+        >
+          <option value="">Seleccione una categoría</option>
+          <option *ngFor="let cat of categorias" [value]="cat.idCategoria">
+            {{ cat.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="createPrecio">Precio *</label>
+        <input
+          type="number"
+          id="createPrecio"
+          [(ngModel)]="nuevoProducto.precio"
+          name="precio"
+          step="0.01"
+          min="0"
+          placeholder="0.00"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="createStock">Stock *</label>
+        <input
+          type="number"
+          id="createStock"
+          [(ngModel)]="nuevoProducto.stock"
+          name="stock"
+          min="0"
+          placeholder="0"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="createDescripcion">Descripción</label>
+        <textarea
+          id="createDescripcion"
+          [(ngModel)]="nuevoProducto.descripcion"
+          name="descripcion"
+          placeholder="Descripción del producto..."
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="createEstado">Estado *</label>
+        <select
+          id="createEstado"
+          [(ngModel)]="nuevoProducto.estado"
+          name="estado"
+          required
+        >
+          <option [value]="true">Activo</option>
+          <option [value]="false">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalCrear()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          Crear
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL EDITAR PRODUCTO ========== -->
+<div class="modal" [class.show]="mostrarModalEditar">
+  <div class="modal-content" *ngIf="productoEditando">
+    <h3>Editar Producto</h3>
+    <p style="color: #b8a896; margin-bottom: 20px; text-align: center;">
+      ID: <span>{{ productoEditando.idProducto }}</span>
+    </p>
+    <form (ngSubmit)="actualizarProducto()">
+      <div class="form-group">
+        <label for="editNombre">Nombre *</label>
+        <input
+          type="text"
+          id="editNombre"
+          [(ngModel)]="productoEditando.nombre"
+          name="nombre"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="editCategoria">Categoría *</label>
+        <select
+          id="editCategoria"
+          [(ngModel)]="productoEditando.categoriaId"
+          name="categoriaId"
+          required
+        >
+          <option value="">Seleccione una categoría</option>
+          <option *ngFor="let cat of categorias" [value]="cat.idCategoria">
+            {{ cat.nombre }}
+          </option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label for="editPrecio">Precio *</label>
+        <input
+          type="number"
+          id="editPrecio"
+          [(ngModel)]="productoEditando.precio"
+          name="precio"
+          step="0.01"
+          min="0"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="editStock">Stock *</label>
+        <input
+          type="number"
+          id="editStock"
+          [(ngModel)]="productoEditando.stock"
+          name="stock"
+          min="0"
+          required
+        >
+      </div>
+
+      <div class="form-group">
+        <label for="editDescripcion">Descripción</label>
+        <textarea
+          id="editDescripcion"
+          [(ngModel)]="productoEditando.descripcion"
+          name="descripcion"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="editEstado">Estado *</label>
+        <select
+          id="editEstado"
+          [(ngModel)]="productoEditando.estado"
+          name="estado"
+          required
+        >
+          <option [value]="true">Activo</option>
+          <option [value]="false">Inactivo</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="btn btn-secondary" (click)="cerrarModalEditar()">
+          Cancelar
+        </button>
+        <button type="submit" class="btn btn-primary" [disabled]="loading">
+          Actualizar
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- ========== MODAL GESTIONAR STOCK ========== -->
+<div class="modal" [class.show]="mostrarModalStock">
+  <div class="modal-content" *ngIf="productoStock">
+    <h3>Gestionar Stock</h3>
+    <p style="color: #b8a896; margin-bottom: 20px; text-align: center;">
+      <strong style="color: #e0b588;">{{ productoStock.nombre }}</strong><br>
+      Stock actual: <span style="color: #e0b588; font-size: 20px; font-weight: bold;">{{ productoStock.stock }}</span>
+    </p>
+    <div class="stock-controls">
+      <button class="btn btn-danger btn-small" (click)="ajustarStock('reducir')">
+        - Reducir
+      </button>
+      <input
+        type="number"
+        [(ngModel)]="cantidadStock"
+        min="1"
+        value="1"
+        style="text-align: center;"
+      >
+      <button class="btn btn-success btn-small" (click)="ajustarStock('aumentar')">
+        + Aumentar
+      </button>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="cerrarModalStock()">
+        Cerrar
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ========== MODAL ELIMINAR PRODUCTO ========== -->
+<div class="modal" [class.show]="mostrarModalEliminar">
+  <div class="modal-content" *ngIf="productoEliminar">
+    <h3>Confirmar Eliminación</h3>
+    <p style="color: #b8a896; margin-bottom: 30px; text-align: center;">
+      ¿Estás seguro de que deseas eliminar el producto <strong style="color: #e0b588;">{{ productoEliminar.nombre }}</strong>?
+    </p>
+    <p style="font-size: 13px; color: #e57373; text-align: center;">
+      Esta acción no se puede deshacer.
+    </p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-secondary" (click)="cerrarModalEliminar()">
+        Cancelar
+      </button>
+      <button type="button" class="btn btn-danger" (click)="confirmarEliminar()" [disabled]="loading">
+        Eliminar
+      </button>
+    </div>
+  </div>
+</div>

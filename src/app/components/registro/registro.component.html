@@ -1,0 +1,125 @@
+<div class="container">
+  <div class="decorative-corner corner-tl"></div>
+  <div class="decorative-corner corner-tr"></div>
+  <div class="decorative-corner corner-bl"></div>
+  <div class="decorative-corner corner-br"></div>
+
+  <!-- ========== WRAPPER CON SCROLL ========== -->
+  <div class="register-wrapper">
+    <div class="register-container">
+
+      <!-- Logo -->
+      <div class="logo">
+        <h1>Buen Sazón</h1>
+        <p>Restaurante</p>
+      </div>
+
+      <!-- Divisor decorativo -->
+      <div class="decorative-divider">
+        <span>REGISTRO</span>
+      </div>
+
+      <!-- Mensaje de éxito/error -->
+      <div *ngIf="mensaje" class="message" [ngClass]="tipoMensaje">
+        {{ mensaje }}
+      </div>
+
+      <!-- Formulario -->
+      <form (ngSubmit)="registrarUsuario()">
+
+        <!-- Nombre Completo -->
+        <div class="form-group">
+          <label for="nombre">Nombre Completo</label>
+          <div class="input-wrapper">
+            <input
+              type="text"
+              id="nombre"
+              name="nombre"
+              [(ngModel)]="usuario.nombre"
+              placeholder="Juan Pérez González"
+              required
+            >
+          </div>
+        </div>
+
+        <!-- Correo Electrónico -->
+        <div class="form-group">
+          <label for="email">Correo Electrónico</label>
+          <div class="input-wrapper">
+            <input
+              type="email"
+              id="email"
+              name="email"
+              [(ngModel)]="usuario.email"
+              placeholder="tu@email.com"
+              required
+            >
+          </div>
+        </div>
+
+        <!-- Selector de Rol -->
+        <div class="form-group">
+          <label for="rol">Selecciona tu Rol</label>
+          <div class="input-wrapper">
+            <select
+              id="rol"
+              name="rol"
+              [(ngModel)]="usuario.rol"
+              required
+              class="role-select"
+            >
+              <option value="" disabled selected>-- Selecciona un rol --</option>
+              <option value="MESERO">🍽️ Mesero</option>
+              <option value="COCINERO">👨‍🍳 Cocinero</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Contraseña -->
+        <div class="form-group">
+          <label for="password">Contraseña</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="password"
+              name="password"
+              [(ngModel)]="usuario.password"
+              (input)="verificarFortalezaPassword($event)"
+              placeholder="••••••••"
+              required
+            >
+          </div>
+          <div class="password-strength" *ngIf="mostrarFortaleza">
+            <div class="password-strength-bar" [ngClass]="claseFortaleza"></div>
+          </div>
+        </div>
+
+        <!-- Confirmar Contraseña -->
+        <div class="form-group">
+          <label for="confirmPassword">Confirmar Contraseña</label>
+          <div class="input-wrapper">
+            <input
+              type="password"
+              id="confirmPassword"
+              name="confirmPassword"
+              [(ngModel)]="confirmPassword"
+              placeholder="••••••••"
+              required
+            >
+          </div>
+        </div>
+
+        <!-- Botones -->
+        <div class="btn-container">
+          <button type="submit" class="btn-register" [disabled]="loading">
+            {{ loading ? 'Registrando...' : 'Registrarse' }}
+          </button>
+          <button type="button" class="btn-back" (click)="volverAlLogin()">
+            Volver
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+</div>

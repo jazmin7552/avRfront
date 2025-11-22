@@ -1,0 +1,82 @@
+<div class="login-wrapper">
+
+  <!-- ========== ESQUINAS DECORATIVAS ========== -->
+  <div class="decorative-corner corner-tl"></div>
+  <div class="decorative-corner corner-tr"></div>
+  <div class="decorative-corner corner-bl"></div>
+  <div class="decorative-corner corner-br"></div>
+
+  <!-- ========== CONTENEDOR DE LOGIN CON SCROLL ========== -->
+  <div class="login-container">
+
+    <!-- Logo -->
+    <div class="logo">
+      <h1>Buen Sazón</h1>
+      <p>Restaurante</p>
+    </div>
+
+    <!-- Divisor decorativo -->
+    <div class="decorative-divider">
+      <span>BIENVENIDO</span>
+    </div>
+
+    <!-- Mensaje de éxito/error -->
+    <div *ngIf="showMessage" [class]="'message ' + messageType">
+      {{ message }}
+    </div>
+
+    <!-- Formulario -->
+    <form (ngSubmit)="onSubmit()">
+
+      <!-- Correo Electrónico -->
+      <div class="form-group">
+        <label for="email">Correo Electrónico</label>
+        <div class="input-wrapper">
+          <input
+            type="email"
+            id="email"
+            name="email"
+            [(ngModel)]="email"
+            (input)="clearMessage()"
+            placeholder="tu@email.com"
+            required
+          >
+        </div>
+      </div>
+
+      <!-- Contraseña -->
+      <div class="form-group">
+        <label for="password">Contraseña</label>
+        <div class="input-wrapper">
+          <input
+            type="password"
+            id="password"
+            name="password"
+            [(ngModel)]="password"
+            (input)="clearMessage()"
+            placeholder="••••••••"
+            required
+          >
+        </div>
+      </div>
+
+      <!-- Botón de Ingresar -->
+      <div class="btn-container">
+        <button type="submit" class="btn-login">Ingresar</button>
+      </div>
+
+      <!-- Divisor OR -->
+      <div class="divider-or">
+        <span>O</span>
+      </div>
+
+      <!-- Botón de Crear Cuenta -->
+      <div class="btn-container">
+        <button type="button" class="btn-register" (click)="goToRegister()">
+          Crear Cuenta
+        </button>
+      </div>
+
+    </form>
+  </div>
+</div>

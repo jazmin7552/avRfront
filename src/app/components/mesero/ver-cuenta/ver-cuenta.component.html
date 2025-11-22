@@ -1,0 +1,169 @@
+<div class="cuenta-container">
+  <!-- Esquinas decorativas -->
+  <div class="decorative-corner corner-tl"></div>
+  <div class="decorative-corner corner-tr"></div>
+  <div class="decorative-corner corner-bl"></div>
+  <div class="decorative-corner corner-br"></div>
+
+  <!-- ========== HEADER FIJO ========== -->
+  <header class="cuenta-header">
+    <div class="container-fluid px-3 px-md-4 py-3">
+      <div class="row align-items-center g-3">
+        <div class="col-12 col-lg-8">
+          <div class="d-flex align-items-center gap-3 flex-wrap">
+            <button class="btn btn-back rounded-pill px-3 py-2" (click)="volver()">
+              ← Volver
+            </button>
+            <h1>🧾 Cuenta de Mesa</h1>
+            <span class="badge mesa-badge rounded-pill px-3 py-2" *ngIf="mesa">
+              {{ mesa.numeroMesa }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ========== CONTENIDO PRINCIPAL CON SCROLL ========== -->
+  <main class="main-content">
+    <div class="container-fluid px-3 px-md-4 py-4">
+
+      <!-- Loading -->
+      <div class="loading py-5" *ngIf="loading">
+        <div class="spinner mb-3"></div>
+        <p class="mb-0">Cargando cuenta...</p>
+      </div>
+
+      <!-- Sin datos -->
+      <div class="empty-state py-5" *ngIf="!loading && (!comandas || comandas.length === 0)">
+        <span class="icon-vacio mb-3">🍽️</span>
+        <p class="fs-5 mb-0">No hay comandas registradas para esta mesa</p>
+      </div>
+
+      <!-- Contenido cuando hay datos -->
+      <div *ngIf="!loading && comandas && comandas.length > 0">
+
+        <!-- ========== INFO DE LA CUENTA ========== -->
+        <section class="cuenta-info-section rounded-4 p-3 p-md-4 mb-4">
+          <div class="row g-3">
+            <div class="col-6 col-md-3">
+              <div class="d-flex flex-column gap-1">
+                <span class="info-label">Mesa</span>
+                <span class="info-value">{{ mesa?.numeroMesa }}</span>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="d-flex flex-column gap-1">
+                <span class="info-label">Total Comandas</span>
+                <span class="info-value">{{ comandas.length }}</span>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="d-flex flex-column gap-1">
+                <span class="info-label">Productos</span>
+                <span class="info-value">{{ totalProductos }}</span>
+              </div>
+            </div>
+            <div class="col-6 col-md-3">
+              <div class="d-flex flex-column gap-1">
+                <span class="info-label">Estado</span>
+                <span class="info-value">{{ mesa?.estado }}</span>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== LISTA DE COMANDAS ========== -->
+        <section class="mb-4">
+          <h2 class="section-title pb-3 mb-4">📋 Comandas Registradas</h2>
+
+          <div class="d-flex flex-column gap-4">
+            <div *ngFor="let comanda of comandas" class="comanda-card rounded-4 p-3 p-md-4">
+
+              <!-- Header de comanda -->
+              <div class="d-flex justify-content-between align-items-center flex-wrap gap-2 pb-3 mb-3 border-bottom border-secondary border-opacity-25">
+                <div>
+                  <span class="comanda-numero d-block">Comanda #{{ comanda.idComanda }}</span>
+                  <span class="comanda-fecha">{{ comanda.fecha | date:'dd/MM/yyyy HH:mm' }}</span>
+                </div>
+                <span class="badge estado-badge rounded-pill px-3 py-2"
+                      [ngClass]="{
+                        'estado-pendiente': comanda.estadoNombre === 'PENDIENTE',
+                        'estado-en-preparacion': comanda.estadoNombre === 'EN_PREPARACION',
+                        'estado-servido': comanda.estadoNombre === 'SERVIDO' || comanda.estadoNombre === 'LISTA'
+                      }">
+                  {{ comanda.estadoNombre }}
+                </span>
+              </div>
+
+              <!-- Detalles de la comanda -->
+              <div class="d-flex flex-column gap-3">
+                <div *ngFor="let detalle of comanda.detalles"
+                     class="detalle-item rounded-3 p-3 d-flex justify-content-between align-items-start gap-3 flex-wrap">
+
+                  <div class="flex-grow-1">
+                    <h4 class="producto-nombre mb-1">{{ detalle.productoNombre || detalle.producto?.nombre || 'Producto' }}</h4>
+                    <span class="producto-cantidad d-block mb-2">Cantidad: {{ detalle.cantidad }}</span>
+
+                    <div class="producto-observaciones rounded-2 px-2 py-1" *ngIf="detalle.observaciones">
+                      <small>📌 {{ detalle.observaciones }}</small>
+                    </div>
+                  </div>
+
+                  <div class="text-end">
+                    <span class="precio-unitario d-block">${{ detalle.precioUnitario | number:'1.0-0' }} c/u</span>
+                    <span class="subtotal d-block">${{ detalle.subtotal | number:'1.0-0' }}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Total de la comanda -->
+              <div class="d-flex justify-content-end pt-3 mt-3 border-top border-secondary border-opacity-25">
+                <div class="text-end">
+                  <span class="total-comanda-label d-block">Total Comanda:</span>
+                  <span class="total-comanda-valor">${{ comanda.total | number:'1.0-0' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <!-- ========== RESUMEN TOTAL ========== -->
+        <section class="total-section rounded-4 p-3 p-md-4 mb-4">
+          <div class="d-flex flex-column gap-3">
+
+            <div class="total-row d-flex justify-content-between align-items-center rounded-3 p-3">
+              <span class="total-label">Subtotal:</span>
+              <span class="total-valor">${{ subtotal | number:'1.0-0' }}</span>
+            </div>
+
+            <div class="total-row d-flex justify-content-between align-items-center rounded-3 p-3">
+              <span class="total-label">Propina Sugerida (10%):</span>
+              <span class="total-valor">${{ propinaSugerida | number:'1.0-0' }}</span>
+            </div>
+
+            <div class="total-row total-final-row d-flex justify-content-between align-items-center rounded-3 p-3 p-md-4">
+              <span class="total-final-label">Total a Pagar:</span>
+              <span class="total-final-valor">${{ totalGeneral | number:'1.0-0' }}</span>
+            </div>
+
+          </div>
+        </section>
+
+        <!-- ========== ACCIONES ========== -->
+        <section class="d-flex gap-3 flex-column flex-md-row mb-4">
+          <button class="btn btn-accion btn-imprimir rounded-pill py-3 px-4 flex-grow-1"
+                  (click)="imprimirCuenta()">
+            🖨️ Imprimir Cuenta
+          </button>
+          <button class="btn btn-accion btn-cerrar-cuenta rounded-pill py-3 px-4 flex-grow-1"
+                  (click)="cerrarCuenta()"
+                  [disabled]="!todasComandasServidas()">
+            💰 Cerrar Cuenta
+          </button>
+        </section>
+
+      </div>
+    </div>
+  </main>
+</div>
